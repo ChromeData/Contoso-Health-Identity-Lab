@@ -3,9 +3,9 @@
 **IAM and PAM lab · Microsoft Entra ID · identity as code**
 
 I built an identity platform for a fictional hospital with 5,000 employees. It runs in a real
-Microsoft Entra tenant, and all of it is code. The clips follow one employee, Sam Rivera, from hire
-to departure. **In the measured leaver run, Active Directory disabled the account in 7 seconds and
-Entra in less than 3 minutes.**
+Microsoft Entra tenant, and all of it is code. The clips follow one new employee, Sam Rivera, from
+hire to departure. **In the first measured leaver run, for nurse Dana Okafor, Active Directory
+disabled the account in 7 seconds and Entra in less than 3 minutes.**
 
 The 18 chapters below show the lab in operation. Each loop is a silent clip at a higher speed.
 
