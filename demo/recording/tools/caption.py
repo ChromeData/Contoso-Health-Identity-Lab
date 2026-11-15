@@ -10,7 +10,7 @@ covers what is on screen (the clip becomes W x (H + BAND)).
 import json, os, re, subprocess, sys, tempfile
 from PIL import Image, ImageDraw, ImageFont
 
-FONT = '/System/Library/Fonts/HelveticaNeue.ttc'
+FONT = 'C:/Windows/Fonts/segoeui.ttf' if os.name == 'nt' else '/System/Library/Fonts/HelveticaNeue.ttc'
 BG = (15, 15, 15, 220)          # NSColor(white 0.06, alpha 0.86)
 AMBER = (255, 189, 77, 255)     # the card's amber
 MAXW = 22                       # words per caption chunk
@@ -67,6 +67,13 @@ def probe(f):
     return j['streams'][0]['width'], j['streams'][0]['height'], float(j['format']['duration'])
 
 
+def graph_arg(script):
+    """The option that reads a filter graph from a file, for the ffmpeg on this machine."""
+    v = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True).stdout
+    m = re.search(r'ffmpeg version n?(\d+)', v)
+    return ['-/filter_complex', script] if m and int(m.group(1)) >= 7 else ['-filter_complex_script', script]
+
+
 def main(d):
     lines = json.load(open(os.path.join(d, 'watch-lines.json')))
     outdir = os.path.join(d, 'captioned'); os.makedirs(outdir, exist_ok=True)
@@ -100,7 +107,8 @@ def main(d):
             last = f'v{i}'
         out = os.path.join(outdir, f)
         script = os.path.join(tmp, 'graph.txt'); open(script, 'w').write(';'.join(chain))
-        subprocess.check_call(['ffmpeg', '-v', 'error', '-y', *inputs, '-filter_complex_script', script, '-map', f'[{last}]',
+        # '-/filter_complex <file>' reads the graph from a file (ffmpeg 7 and later; -filter_complex_script is gone in newer builds).
+        subprocess.check_call(['ffmpeg', '-v', 'error', '-y', *inputs, *graph_arg(script), '-map', f'[{last}]',
                                '-an', '-c:v', 'libx264', '-crf', '20', '-preset', 'veryfast', '-pix_fmt', 'yuv420p', out])
         print(f'{f}: {len(cues)} captions -> {out}')
 

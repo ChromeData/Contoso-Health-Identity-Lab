@@ -7,7 +7,7 @@ demo/videos/<clip>.mp4 exists. Run demo/make_loops.py first, then this.
 """
 import os
 
-from chapters import CHAPTERS, GROUPS
+from chapters import CHAPTERS, GROUPS, RECORDED
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
@@ -64,7 +64,9 @@ def plan():
         "|---|---|---|---|---|---|---|",
     ]
     for c in CHAPTERS:
-        if has(f"demo/videos/{c['clip']}.mp4"):
+        if c["clip"] in RECORDED and has(f"demo/videos/{c['clip']}.mp4"):
+            status = f"Recorded {RECORDED[c['clip']]['date']}"
+        elif has(f"demo/videos/{c['clip']}.mp4"):
             status = "Record again"
         elif c["clip"] in ("N03-one-account-two-directories", "N05-the-master-key"):
             status = "Not recorded (live sign-in)"

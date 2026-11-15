@@ -18,7 +18,8 @@
     "clips": "node cockpit.mjs --v2 --watch --silent --quiet",
     "captions": "python3 tools/caption.py",
     "win:setup": "node win/setup.mjs",
-    "win:clips": "node win/record.mjs"
+    "win:clips": "node win/record.mjs",
+    "win:github": "node win/github-signin.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",

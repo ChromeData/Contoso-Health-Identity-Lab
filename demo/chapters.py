@@ -4,6 +4,8 @@ Each chapter: group, title, summary (table), line (one sentence under the title)
 demo/videos, no extension), length (None = no clip yet), needs_trial (the feature stops when the
 Entra trials end), show (what the clip must show), evidence (rows in lab/evidence/capture-log.csv).
 """
+import json
+import os
 import re
 
 GROUPS = ["Identity lifecycle", "Sign-in security", "Privileged access", "Governance and audit",
@@ -122,3 +124,11 @@ CHAPTERS = [
          anchor=f"{i}-{_slug(title)}")
     for i, (g, title, summary, line, clip, length, trial, show, evidence) in enumerate(_ROWS, 1)
 ]
+
+# Clips recorded again with the hidden recorder (demo/publish_clips.py writes this file):
+# clip name -> {"date", "length", "steps"}. A clip listed here has its length from the new file.
+_RECORDED_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "recorded.json")
+RECORDED = json.load(open(_RECORDED_FILE, encoding="utf-8")) if os.path.exists(_RECORDED_FILE) else {}
+for _c in CHAPTERS:
+    if _c["clip"] in RECORDED:
+        _c["length"] = RECORDED[_c["clip"]]["length"]

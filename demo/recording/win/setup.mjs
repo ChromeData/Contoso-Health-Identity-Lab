@@ -49,7 +49,38 @@ function checkout(dir, branch) {
 }
 git(['fetch', '-q', 'origin', '+refs/heads/main:refs/remotes/origin/main']);
 for (const [k, br] of Object.entries(BRANCHES)) checkout(path.join(HERE, '.v2', k), br);
-checkout(path.join(DEMO, 'blueprints'), 'main');
+// The blueprints folder shows part N01's change as changed lines (the bridge
+// reads `git diff HEAD`). On the Mac that folder holds the change not yet
+// committed. Here: the commit just before the change was merged (PR #204),
+// with the two files the part shows as they were after it.
+const N01_MERGE = process.env.COCKPIT_N01_MERGE || '3f19d11c0e6a5f268f1f877c0533b0240e1f4a85';
+const N01_FILES = ['lab/terraform/modules/entitlement/variables.tf', 'lab/iga/birthright-rules.json'];
+{
+  const dir = path.join(DEMO, 'blueprints');
+  if (!fs.existsSync(path.join(dir, '.git'))) git(['worktree', 'add', '-q', '--detach', dir, `${N01_MERGE}^`]);
+  else { git(['checkout', '-q', '--force', '--detach', `${N01_MERGE}^`], dir); }
+  git(['checkout', N01_MERGE, '--', ...N01_FILES], dir);
+  say(`checkout blueprints: ${git(['log', '--format=%h', '-1'], dir)} + the N01 change in ${N01_FILES.length} files (not committed)`);
+}
+checkout(path.join(DEMO, 'hr'), 'hr-feed');             // HR's list (detached: nothing is committed from here)
+checkout(path.join(HERE, '.tour-main'), 'main');        // the tour's copy of main
+
+// The lab guide's stops (readiness/lab-guide/stops.json, copied from the
+// Mac) name their folders with the Mac's home path. On this PC the same
+// folders are under %USERPROFILE%\contoso-demo: the roots are rewritten in
+// the local copy (it is not in the repo).
+const stopsFile = path.join(DEMO, 'readiness', 'lab-guide', 'stops.json');
+if (fs.existsSync(stopsFile)) {
+  const d = JSON.parse(fs.readFileSync(stopsFile, 'utf8'));
+  let n = 0;
+  for (const [k, root] of Object.entries(d.roots || {})) {
+    const m = /[\\/]contoso-demo(?:[\\/](.*))?$/.exec(root);
+    if (!m) continue;
+    const here = path.join(DEMO, ...(m[1] ? m[1].split(/[\\/]/) : []));
+    if (here !== root) { d.roots[k] = here; n++; }
+  }
+  if (n) { fs.writeFileSync(stopsFile, JSON.stringify(d, null, 1)); say(`lab guide stops: ${n} folder roots set for this PC`); } else say('lab guide stops: roots ok');
+}
 
 // ---- 3. hidden VS Code ----------------------------------------------------------
 fs.mkdirSync(path.join(DATA, 'data', 'Machine'), { recursive: true });

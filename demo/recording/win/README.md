@@ -66,11 +66,36 @@ To run the steps with no recording, add `--check`.
 | `shots/<step>.jpg` | One picture for each step. Look at these first. |
 | `record.log` | The full log. |
 
+## Put the clips in the repo
+
+1. Add the captions and copy the clips to `demo/videos/`:
+
+   ```
+   python demo/publish_clips.py <output folder>
+   ```
+
+   A part with a failed step is not copied.
+2. Build the loops: `python demo/make_loops.py`
+3. Build the pages: `python demo/build_pages.py`
+4. Look at each loop before you push.
+
+## GitHub sign-in (one time)
+
+GitHub is your own account. The recorder has no login for it.
+With no sign-in, GitHub hides the job summaries, the job logs and the **Run workflow** button.
+The steps that show them fail (parts N01, N09, N14 and N16).
+
+1. Make sure that no recording runs.
+2. Run `npm run win:github`.
+3. Sign in to GitHub in the small window that opens.
+4. Wait. The window closes when you are signed in.
+
 ## Limits
 
-- Parts that use the staff window, the AWS window, Teams, Splunk or OrangeHRM do not record yet.
+- The staff window, the AWS window, the private window, Teams, Splunk and OrangeHRM are not in the recorder yet. A step that has a captured screen shows that screen. A step with no captured screen fails (parts N05 and N07).
 - Steps that need a live check of the lab (`require`) are not checked.
 - The clip shows no browser tabs and no address bar. A hidden browser has none.
+- The check results in `tour/out` come from the last run of `tools/tour-extra-checks.sh` on the Mac. That script does not run on Windows.
 
 ## Stop the hidden VS Code
 

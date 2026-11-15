@@ -47,7 +47,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![HR hires an employee](demo/loops/01-hr-hires-an-employee.webp)
 
-[Full clip, 2:03](demo/videos/N02-hired.mp4)
+[Full clip, 1:53](demo/videos/N02-hired.mp4)
 
 ### 2. One account in two directories
 
@@ -61,7 +61,7 @@ The clip for this chapter comes later.
 
 ![Access on day one](demo/loops/03-access-on-day-one.webp)
 
-[Full clip, 1:40](demo/videos/N04-first-day-doors.mp4)
+[Full clip, 1:45](demo/videos/N04-first-day-doors.mp4)
 
 ### 4. Request more access
 
@@ -69,13 +69,15 @@ The clip for this chapter comes later.
 
 ![Request more access](demo/loops/04-request-more-access.webp)
 
-[Full clip, 3:12](demo/videos/N04b-the-service-desk.mp4)
+[Full clip, 2:28](demo/videos/N04b-the-service-desk.mp4)
 
 ### 5. The employee changes jobs
 
 **HR moves a nurse from Nursing to ICU. The account gets the ICU access package from the new department.**
 
-The clip for this chapter comes later.
+![The employee changes jobs](demo/loops/05-the-employee-changes-jobs.webp)
+
+[Full clip, 0:44](demo/videos/N20-the-employee-changes-jobs.mp4)
 
 ### 6. The employee leaves
 
@@ -83,7 +85,7 @@ The clip for this chapter comes later.
 
 ![The employee leaves](demo/loops/06-the-employee-leaves.webp)
 
-[Full clip, 0:56](demo/videos/N08-leaving.mp4)
+[Full clip, 1:05](demo/videos/N08-leaving.mp4)
 
 ## Sign-in security
 
@@ -91,13 +93,17 @@ The clip for this chapter comes later.
 
 **Eleven sign-in policies are code. Each policy starts in report-only mode, and nine are enforced.**
 
-The clip for this chapter comes later.
+![Conditional Access and MFA](demo/loops/07-conditional-access-and-mfa.webp)
+
+[Full clip, 0:57](demo/videos/N18-conditional-access.mp4)
 
 ### 8. Break-glass accounts
 
 **Two emergency admin accounts are out of all 11 policies. A drill examines them, and a Sentinel rule reports each sign-in.**
 
-The clip for this chapter comes later.
+![Break-glass accounts](demo/loops/08-break-glass-accounts.webp)
+
+[Full clip, 0:56](demo/videos/N19-break-glass.mp4)
 
 ## Privileged access
 
@@ -113,7 +119,7 @@ The clip for this chapter comes later.
 
 ![Admin passwords and recorded sessions](demo/loops/10-admin-passwords-and-recorded-sessions.webp)
 
-[Full clip, 3:14](demo/videos/N11-admin-passwords-and-sessions.mp4)
+[Full clip, 2:17](demo/videos/N11-admin-passwords-and-sessions.mp4)
 
 ### 11. Harden Active Directory
 
@@ -121,7 +127,7 @@ The clip for this chapter comes later.
 
 ![Harden Active Directory](demo/loops/11-harden-active-directory.webp)
 
-[Full clip, 1:55](demo/videos/N12-hardening-ad.mp4)
+[Full clip, 1:34](demo/videos/N12-hardening-ad.mp4)
 
 ### 12. Admin access in AWS and Azure
 
@@ -129,7 +135,7 @@ The clip for this chapter comes later.
 
 ![Admin access in AWS and Azure](demo/loops/12-admin-access-in-aws-and-azure.webp)
 
-[Full clip, 1:35](demo/videos/N15-aws-server-access-and-azure-least-privilege.mp4)
+[Full clip, 1:06](demo/videos/N15-aws-server-access-and-azure-least-privilege.mp4)
 
 ## Governance and audit
 
@@ -139,13 +145,15 @@ The clip for this chapter comes later.
 
 ![Access governance](demo/loops/13-access-governance.webp)
 
-[Full clip, 2:57](demo/videos/N10-microsoft-features.mp4)
+[Full clip, 1:49](demo/videos/N10-microsoft-features.mp4)
 
 ### 14. Service accounts and robots
 
 **An inventory lists 19 non-human identities and gives 27 findings. Eight identities have no owner.**
 
-The clip for this chapter comes later.
+![Service accounts and robots](demo/loops/14-service-accounts-and-robots.webp)
+
+[Full clip, 0:49](demo/videos/N21-service-accounts.mp4)
 
 ### 15. Audit evidence
 
@@ -177,7 +185,9 @@ The clip for this chapter comes later.
 
 **A Sentinel incident asks a named approver in Teams. After the approval, a playbook revokes the sessions and disables the account.**
 
-The clip for this chapter comes later.
+![Contain a compromised account](demo/loops/18-contain-a-compromised-account.webp)
+
+[Full clip, 1:00](demo/videos/N22-contain-an-account.mp4)
 
 ## Platform as code
 
@@ -203,7 +213,7 @@ The clip for this chapter comes later.
 
 ![The lab in VS Code and GitHub](demo/loops/21-the-lab-in-vs-code-and-github.webp)
 
-[Full clip, 1:18](demo/videos/N17-close-vscode-github.mp4)
+[Full clip, 0:55](demo/videos/N17-close-vscode-github.mp4)
 
 ## Migrations
 
@@ -213,7 +223,7 @@ The clip for this chapter comes later.
 
 ![Move an app from AD FS](demo/loops/22-move-an-app-from-ad-fs.webp)
 
-[Full clip, 1:33](demo/videos/N13-adfs-to-entra.mp4)
+[Full clip, 1:25](demo/videos/N13-adfs-to-entra.mp4)
 
 ### 23. Move the clinic from Okta
 

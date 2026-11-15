@@ -146,7 +146,7 @@ for (const k of ['hr', 'ad', 'okta', 'pam', 'k8skv', 'kvleak', 'bastion', 'adfs'
 for (const [k, d] of Object.entries(v2)) if (!fs.existsSync(d)) { console.error(`missing ${d} (${k}): run "node win/setup.mjs" first`); process.exit(1); }
 const localDate = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const c = { mode: 'dry', today: localDate(), hr: path.join(DEMO, 'hr'), bp: path.join(DEMO, 'blueprints'), bpBranch: 'origin/main (read only)',
-  tourLab: v2.ssm, tourOut: path.join(ROOT, 'tour', 'out'), tourWs: v2.ws, wsFile: v2.ws, v2,
+  tourLab: path.join(ROOT, '.tour-main'), tourOut: path.join(ROOT, 'tour', 'out'), tourWs: path.join(ROOT, 'tour', 'contoso-demo-tour.code-workspace'), wsFile: v2.ws, v2,
   hire: { first: 'Sam', last: 'Rivera', dept: 'Information Technology', job: 'Cloud Engineer', pkg: 'IT - Cloud Engineering Apps', name: 'Sam Rivera' } };
 
 // Earlier real runs the steps show, read only (the engine's dryStandIns).
@@ -161,6 +161,28 @@ async function standIns() {
   await tryIt('the latest HR feed run', async () => { const r = await latest('hr-feed.yml'); if (r) c.hrRun = { id: r.databaseId, url: r.url }; return !!r; });
   await tryIt('the latest evidence run', async () => { const r = await latest('evidence-pack.yml'); if (r) c.evRun = { id: r.databaseId, url: r.url }; return !!r; });
   await tryIt('the approval issue', async () => { const i = JSON.parse(await gh(['issue', 'list', '-R', REPO, '--state', 'all', '--search', '"Approve: apply" in:title', '--limit', '1', '--json', 'number,url,state,title']))[0]; if (i) c.issue = i; return !!i; });
+  // Read as the lab operator (read only): the person the steps show, and
+  // the newest Sentinel incident about Raj's earlier activation.
+  const op = await import(pathToFileURL(path.join(LAB, 'lab', 'scripts', 'operator', 'op-rest.mjs')).href);
+  const get = async (url, method = 'GET') => { const r = await op.rest(method, url); if (r.status >= 400) throw new Error(`${r.status} ${r.text.slice(0, 160)}`); return r.text ? JSON.parse(r.text) : {}; };
+  const user = async (employeeId) => (await get(`https://graph.microsoft.com/v1.0/users?$filter=employeeId eq '${employeeId}'&$select=id,displayName,userPrincipalName`)).value?.[0] || null;
+  await tryIt('the person', async () => {
+    const sam = await user('400104');
+    if (sam) { c.sam = { id: sam.id, upn: sam.userPrincipalName }; return true; }
+    const sofia = await user('100488');
+    if (sofia) { c.sam = { id: sofia.id, upn: sofia.userPrincipalName, standIn: sofia.displayName }; used.push(`${sofia.displayName} in place of Sam`); }
+    return false;
+  });
+  if (parts.includes(6)) await tryIt('the PIM incident', async () => {
+    const SI = 'https://management.azure.com/subscriptions/de0b2a93-1c62-47b3-aaaf-1bdd1939a274/resourceGroups/rg-identity-lab/providers/Microsoft.OperationalInsights/workspaces/loga-idlab/providers/Microsoft.SecurityInsights/incidents';
+    const list = (await get(`${SI}?api-version=2024-09-01&$orderby=properties/createdTimeUtc desc&$top=200`)).value || [];
+    for (const x of list.filter((i) => /PIM activation/i.test(i.properties.title))) {
+      const ents = (await get(`${SI}/${x.name}/entities?api-version=2024-09-01`, 'POST').catch(() => ({}))).entities || [];
+      const accts = ents.filter((e) => e.kind === 'Account').map((e) => `${e.properties.accountName}@${e.properties.upnSuffix || ''}`.toLowerCase());
+      if (accts.some((a) => a.startsWith('adm-raj.patel@'))) { c.pimIncident = { name: x.name, number: x.properties.incidentNumber, title: x.properties.title, created: x.properties.createdTimeUtc, providerIncidentId: x.properties.providerIncidentId, accounts: accts }; return true; }
+    }
+    return false;
+  });
   log(`stand-ins (read only): ${used.join(', ') || 'none'}`);
 }
 
@@ -319,7 +341,7 @@ async function act(a, s) {
     case 'banner': case 'banner.previewOnly': { if (a.do === 'banner.previewOnly') break; if (a.ctx && a.ctx !== 'browser') break; await B.page?.evaluate((t) => window.__ck && window.__ck.banner(t), val(a.text)).catch(() => {}); break; }
     case 'activate': if (a.app === 'code' || a.app === 'browser') await front(a.app); else throw new Error(`not in the hidden recorder yet: the ${a.app} window`); break;
     case 'pause': await sleep(a.ms || 1000); break;
-    case 'find': if (a.what === 'sam' && !c.sam) throw new Error('Sam is not in this run (no stand-in user yet)'); break;
+    case 'find': if (a.what === 'sam') { if (!c.sam) throw new Error('Sam is not in Entra now, and there is no stand-in user'); if (c.sam.standIn) log(`[${s.id}] Sam is not in Entra now: showing ${c.sam.standIn}`); } break;
     case 'require': log(`[${s.id}] check "${a.check}" not run (dry)`); break;
     case 'stopwatch.start': case 'stopwatch.lap': case 'stopwatch.stop': break;
     default: throw new Error(`not in the hidden recorder yet: ${a.do}`);
@@ -342,12 +364,17 @@ async function runStep(s, report) {
   const at = cam.position();
   let failed = null, waited = 0, k = 0;
   for (const a of acts) {
-    if (NAV.has(a.do)) await cam.pause();
-    else if (VISUAL.has(a.do) && !cam.rolling && a.do !== 'map.focus') { if (cam.onStage) await cam.resume(); }
+    // A click that only gets to a page is not filmed (the page it loads is
+    // not the picture): the camera rolls again for the highlight. A step
+    // marked showClicks films its clicks.
+    const getsThere = /^web\.click(If)?$/.test(a.do) && !s.showClicks;
+    // The camera starts again AFTER an action that shows something (below):
+    // a highlight first waits for its element, and that wait is not filmed.
+    if (NAV.has(a.do) || getsThere) await cam.pause();
     if (FOLLOW.has(a.do)) { if (k > 0) { const w = Math.round(total / (follows + 1)); await sleep(w); waited += w; } k++; }
     try {
       await act(a, s);
-      if (VISUAL_AFTER.has(a.do) || VISUAL.has(a.do)) { await sleep(250); await cam.resume(); }
+      if (!getsThere && (VISUAL_AFTER.has(a.do) || VISUAL.has(a.do))) { await sleep(250); await cam.resume(); }
     } catch (e) {
       failed = `${a.do}: ${e.message.split('\n')[0]}`;
       log(`[${s.id}] FAILED ${failed}`);
@@ -360,13 +387,14 @@ async function runStep(s, report) {
     await cam.onStage.screenshot({ path: path.join(OUT, 'shots', `${s.id}.jpg`), type: 'jpeg', quality: 80 }).catch(() => {});
     await sleep(Math.max(0, total - waited - 2500));
   } else if (cam.onStage) { await sleep(800); await cam.onStage.screenshot({ path: path.join(OUT, 'shots', `${s.id}.jpg`), type: 'jpeg', quality: 80 }).catch(() => {}); }
-  report.push({ id: s.id, piece: s.piece, at: +at.toFixed(2), ok: !failed, failed, standIn, skipped: skipped.map((a) => a.do), say: s.say });
+  report.push({ id: s.id, piece: s.piece, at: +at.toFixed(2), end: +cam.position().toFixed(2), ok: !failed, failed, standIn, skipped: skipped.map((a) => a.do), say: s.say });
   return !failed;
 }
 
 // ---- run ---------------------------------------------------------------------------
 fs.mkdirSync(path.join(OUT, 'shots'), { recursive: true });
 let exit = 0;
+const lines = [];
 try {
   await standIns();
   const list = stepsV2(c).filter((x) => parts.includes(x.piece) && !x.pending && !x.silentSkip);
@@ -385,6 +413,9 @@ try {
     if (!CHECK) await cam.stop();
     const bad = report.filter((r) => !r.ok);
     fs.writeFileSync(path.join(OUT, `${piece.slug}.timeline.json`), JSON.stringify({ part: piece.slug, title: piece.title, recorded: new Date().toISOString(), fps: cam.fps, steps: report }, null, 1));
+    // The caption lines, in the form tools/caption.py reads (all parts of this run).
+    lines.push(...report.map((r) => ({ id: r.id, piece: r.piece, at: r.at, end: r.end, text: r.say.join(' ') })));
+    fs.writeFileSync(path.join(OUT, 'watch-lines.json'), JSON.stringify(lines, null, 1));
     log(`==== ${piece.slug}: ${report.length - bad.length}/${report.length} steps ok${bad.length ? `; FAILED: ${bad.map((r) => `${r.id} (${r.failed})`).join('; ')}` : ''}`);
     if (bad.length) exit = 1;
   }
