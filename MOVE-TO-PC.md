@@ -30,11 +30,10 @@ On the Mac they are Keychain items. On Windows use Credential Manager (`cmdkey`)
 | `contoso-lab-test-user-a/b/c`, `contoso-lab-tap-adm-raj`, `contoso-lab-totp-adm-raj` | Test users and the adm-raj MFA seed |
 | `contoso-lab-passkey-adm-presenter` (and the other `contoso-lab-passkey-adm-*`) | Lab passkeys (base64 JSON credential records) used by `lab/scripts/demo/signin/identity.mjs`; re-register with `passkey.mjs register` on a new machine |
 | `contoso-lab-totp-<user>`, `contoso-lab-pw-<user>` | Authenticator seeds and passwords written by `lab/scripts/demo/signin/enroll.mjs` (account = UPN); re-run `enroll.mjs --force` on a new machine instead of copying |
-| `greptile-api` | Greptile API key (MCP server in `.mcp.json`) |
 
 Not every helper reads a vault, though: `lab/scripts/dc/run-on-dc.py` and a few others call the macOS `security` command directly (`keychain:<service>`), so on Windows they need a `security`-shim or a rewrite to read the Windows vault. Creating the Credential Manager entries is necessary but not sufficient; treat those scripts as Mac-only until ported.
 
-PowerShell equivalent of the Mac lookups: `Get-Secret -Name contoso-lab-admin -AsPlainText` with the SecretManagement module. Set `GREPTILE_API_KEY` from the vault in your PowerShell profile the same way `~/.zshrc` does on the Mac.
+PowerShell equivalent of the Mac lookups: `Get-Secret -Name contoso-lab-admin -AsPlainText` with the SecretManagement module.
 
 ## 3. Files that are not in git and must be carried by hand
 
