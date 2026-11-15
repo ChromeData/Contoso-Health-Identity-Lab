@@ -16,7 +16,9 @@
     "watch": "node cockpit.mjs --v2 --watch --quiet",
     "overlay": "swiftc -O tools/script-overlay.swift -o tools/script-overlay",
     "clips": "node cockpit.mjs --v2 --watch --silent --quiet",
-    "captions": "python3 tools/caption.py"
+    "captions": "python3 tools/caption.py",
+    "win:setup": "node win/setup.mjs",
+    "win:clips": "node win/record.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",

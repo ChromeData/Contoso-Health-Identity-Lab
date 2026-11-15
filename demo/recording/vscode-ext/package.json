@@ -2,7 +2,7 @@
   "name": "cockpit-bridge",
   "displayName": "Contoso cockpit bridge",
   "description": "Lets the local recording cockpit drive the Contoso demo window: open files, show diffs, type, commit and push. Only active in the Contoso demo workspaces; listens on 127.0.0.1 only, with a per-window token. Also opens a Lab Guide stop (vscode://contoso-lab.cockpit-bridge/open?stop=<id>): its files as tabs, key lines softly tinted.",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "publisher": "contoso-lab",
   "license": "UNLICENSED",
   "private": true,

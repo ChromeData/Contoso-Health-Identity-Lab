@@ -18,3 +18,7 @@ takes/
 tools/script-overlay
 .state/bridges/
 .state/*.log
+.vscode-web/
+.state/preview-last.json
+.state/ui-key
+.state/v2-hire.json

@@ -19,7 +19,10 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 
-const DEMO_ROOT = path.join(os.homedir(), 'contoso-demo');
+// Windows: VS Code gives a file path a lower-case drive letter (c:\...), and
+// paths are compared as text here, so every path gets that same form.
+const drive = (p) => (process.platform === 'win32' ? String(p).replace(/^[A-Z]:/, (d) => d.toLowerCase()) : p);
+const DEMO_ROOT = drive(path.join(os.homedir(), 'contoso-demo'));
 const REG_DIR = path.join(DEMO_ROOT, 'cockpit', '.state', 'bridges');
 const COMMANDS = new Set([
   'workbench.view.scm', 'workbench.view.explorer', 'workbench.action.closeAllEditors',
@@ -51,10 +54,10 @@ function demoWorkspace() {
 }
 function folders() { return (vscode.workspace.workspaceFolders || []).map((f) => ({ name: f.name, path: f.uri.fsPath })); }
 function insideWorkspace(file) {
-  const real = path.resolve(file);
+  const real = drive(path.resolve(file));
   return folders().some((f) => real === f.path || real.startsWith(f.path + path.sep));
 }
-function mustBeInside(file) { if (!file || !insideWorkspace(file)) throw new Error(`not inside this workspace: ${file}`); return path.resolve(file); }
+function mustBeInside(file) { if (!file || !insideWorkspace(file)) throw new Error(`not inside this workspace: ${file}`); return drive(path.resolve(file)); }
 function gitApi() {
   const ext = vscode.extensions.getExtension('vscode.git');
   if (!ext || !ext.isActive) throw new Error('the built-in Git extension is not active');
@@ -141,7 +144,7 @@ function loadStop(key) {
   for (const f of s.files || []) {
     const root = d.roots && d.roots[f.root];
     if (!root) throw new Error(`stop ${s.n}: unknown root ${f.root}`);
-    const file = path.resolve(root, f.path);
+    const file = drive(path.resolve(root, f.path));
     if (!file.startsWith(DEMO_ROOT + path.sep)) throw new Error(`stop ${s.n}: ${f.path} is outside ~/contoso-demo`);
     if (!fs.existsSync(file)) throw new Error(`stop ${s.n}: missing ${file}`);
     const ranges = parseLines(f.lines);
