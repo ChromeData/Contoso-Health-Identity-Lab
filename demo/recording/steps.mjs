@@ -830,10 +830,11 @@ export function stepsV2(c) {
     { id: 'n06-incident', piece: 6, say: S("Raj's activation wrote a row in AuditLogs. The rule runs every five minutes. It found the row, and Sentinel opened this incident. Last time, that took about thirteen minutes end to end."),
       previewSay: S("This incident is from an earlier activation of Raj's. It wrote a row in AuditLogs. The rule runs every five minutes, found the row, and Sentinel opened this incident."),
       do: [{ do: 'web.open', url: (x) => `https://security.microsoft.com/incidents/${x.pimIncident.providerIncidentId}/alerts?tid=86a2e327-4951-4348-a3c4-6f4b79ffd8f2`, settle: 12000 },
-        { do: 'web.click', target: [{ role: 'tab', name: /^Alerts/ }, { re: '^Alerts \\(\\d+\\)$', nth: 0 }], timeout: 20000, settle: 4000 },
+        // 2026-11-15: Defender's incident page is now a "case" page. Alerts and Assets are tree items on the left, not tabs.
+        { do: 'web.click', target: [{ role: 'treeitem', name: /^Alerts/ }, { role: 'tab', name: /^Alerts/ }, { re: '^Alerts \\(\\d+\\)$', nth: 0 }], timeout: 30000, settle: 4000 },
         { do: 'web.highlight', target: [{ re: '^Contoso - PIM activation', nth: 0, row: true }, { re: 'PIM activation \\(just-in-time', nth: 1, row: true }], tag: 'The alert' }] },
     { id: 'n06-entities', piece: 6, say: S("The alert names Raj's account and shows his reason. Here, every activation opens an incident. At hospital scale that is too noisy, so a pending change raises only the risky ones."),
-      do: [{ do: 'web.click', target: [{ role: 'tab', name: /^Assets/ }, { re: '^Assets \\(\\d+\\)$', nth: 0 }], timeout: 20000, settle: 4000 },
+      do: [{ do: 'web.click', target: [{ role: 'treeitem', name: /^Assets/ }, { role: 'tab', name: /^Assets/ }, { re: '^Assets \\(\\d+\\)$', nth: 0 }], timeout: 30000, settle: 4000 },
         { do: 'web.click', target: { re: '^Users \\(\\d+\\)$', nth: 0 }, settle: 4000 },
         { do: 'web.highlight', target: [{ re: '^ADM Raj Patel$', nth: 0 }, { re: 'adm-raj\\.patel', nth: 0 }], tag: 'Raj, who switched it on' }] },
 

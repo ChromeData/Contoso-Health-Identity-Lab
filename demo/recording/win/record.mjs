@@ -29,6 +29,12 @@ import { WebCode, DEMO, ROOT, lower } from './vscode-web.mjs';
 import { Screencast } from './screencast.mjs';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// Each step's own wait after a page change is kept in full (lib/browser.mjs
+// cuts it to 1.5 s for the Mac, where the hand is slow and a wait is dead
+// time on film). Here the camera is off while a page loads, so a wait costs
+// nothing, and a click on a portal that is still starting does not hold
+// (seen: the Entra user page went back to its first tab).
+process.env.COCKPIT_SETTLE ||= 'full';
 const argv = process.argv.slice(2);
 const flag = (f) => argv.includes(f);
 const opt = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
@@ -122,6 +128,24 @@ class HiddenBrowser extends Browser {
   async activate() { await this.page?.bringToFront().catch(() => {}); return true; }
   async humanOpen() { return false; }
   async reachForToolbar() {}
+  // In the hidden browser, a click on a portal page that lives in a frame of
+  // another site (the Entra user page) does not arrive while the overlay
+  // covers the window, although the overlay takes no pointer events (found
+  // 2026-11-15: the Properties tab stayed unselected). The overlay is taken
+  // away for the moment of the click.
+  async overlay(on) { await this.page.evaluate((show) => { const r = document.getElementById('__ck_root'); if (r) r.style.display = show ? '' : 'none'; }, on).catch(() => {}); }
+  async click(target, opts) {
+    const { el, x, y } = await this.pointAt(target, opts);
+    await this.ov('ripple', x, y); await sleep(150);
+    await this.overlay(false);
+    try { await el.click({ timeout: 10000 }); } finally { await this.overlay(true); }
+  }
+  async focusBox(target) {
+    const { el } = await this.pointAt(target);
+    await this.overlay(false);
+    try { await el.click({ timeout: 10000 }); } finally { await this.overlay(true); }
+    await this.ov('hideCursor');
+  }
   // The page size for this address (see VIEW), set before the page loads.
   // The scale stays 1.25: a full-size page is drawn at 2400 x 1350 and the
   // camera scales it to 1920 x 1080.
@@ -296,9 +320,18 @@ async function act(a, s) {
     case 'web.click': {
       await B.unhighlight();
       const ts = [].concat(val(a.target)); let err;
-      for (const t of ts) { try { await B.find(t, { timeout: Math.round((a.timeout ?? 15000) / ts.length) }); await B.click(t); err = null; break; } catch (e) { err = e; } }
+      let hit = null;
+      for (const t of ts) { try { await B.find(t, { timeout: Math.round((a.timeout ?? 15000) / ts.length) }); await B.click(t); err = null; hit = t; break; } catch (e) { err = e; } }
       if (err) throw err;
-      await B.settle(a.settle ?? 2500); break;
+      await B.settle(a.settle ?? 2500);
+      // A tab clicked while the portal is still starting can stay unselected
+      // (the Mac's hand is slower than a hidden click): look, and click again.
+      if (hit?.role === 'tab') for (let k = 0; k < 3; k++) {
+        const sel = await B.find(hit, { timeout: 3000 }).then((f) => f.el.getAttribute('aria-selected'), () => null);
+        if (sel !== 'false') break;
+        await sleep(1500); await B.click(hit).catch(() => {}); await B.settle(a.settle ?? 2500);
+      }
+      break;
     }
     case 'web.clickIf': { const t = val(a.target); if (await B.find(t, { timeout: a.timeout ?? 6000 }).then(() => true, () => false)) { await B.click(t); await B.settle(a.settle ?? 3000); } break; }
     case 'card': {
@@ -380,6 +413,10 @@ async function runStep(s, report) {
       log(`[${s.id}] FAILED ${failed}`);
       if (/^(web\.open|find|code\.open)$/.test(a.do)) break;
     }
+  }
+  // A stand-in person on screen is named on screen (the line still says Sam).
+  if (!failed && c.sam?.standIn && acts.some((a) => a.do === 'find' && a.what === 'sam') && c.front === 'browser') {
+    await B.page?.evaluate((t) => window.__ck && window.__ck.banner(t), `Stand-in: ${c.sam.standIn} is on screen. Sam Rivera is not hired in the lab now.`).catch(() => {});
   }
   if (!cam.rolling && cam.onStage) { await sleep(350); await cam.resume(); }
   if (cam.onStage && !CHECK) {

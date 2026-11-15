@@ -53,7 +53,9 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 **The new account goes to Active Directory first. Cloud Sync then makes the same account in Entra ID.**
 
-The clip for this chapter comes later.
+![One account in two directories](demo/loops/02-one-account-in-two-directories.webp)
+
+[Full clip, 0:27](demo/videos/N03-one-account-two-directories.mp4)
 
 ### 3. Access on day one
 
@@ -171,7 +173,7 @@ The clip for this chapter comes later.
 
 ![Detection in Sentinel](demo/loops/16-detection-in-sentinel.webp)
 
-[Full clip, 3:15](demo/videos/N06-the-cameras.mp4)
+[Full clip, 1:04](demo/videos/N06-the-cameras.mp4)
 
 ### 17. Detection in Splunk
 
