@@ -95,12 +95,12 @@ export const OVERLAY = `(() => {
 const DISMISS = `(() => {
   // + review 1: AWS's "Service menu" tour, Defender's "Custom columns" bubble, Splunk's AI toast.
   const titles = [/Give feedback to Microsoft/i, /Mandatory Azure MFA/i, /How likely are you/i, /We.d love your feedback/i, /Welcome to (the )?Microsoft Defender/i, /What.s new/i, /Tasks Panel Remains Unchanged/i,
-    /Service menu/i, /Custom columns/i, /Splunk AI Assistant/i, /Introducing the new/i, /Take a tour/i,
+    /Service menu/i, /Custom columns/i, /Splunk AI Assistant/i, /Introducing the new/i, /Take a tour/i, /take a quick tour/i,   // 2026-11-15: Splunk's first-visit prompt (its Skip is a link, not a button)
     /Try the new pull requests Overview/i, /Upcoming change to GitHub App installation token/i];   // 2026-11-10: GitHub's PR page popover (Not now)
   let n = 0;
   for (const el of document.querySelectorAll('div,section,aside,[role=dialog]')) {
     const t = el.innerText || ''; if (t.length > 900 || !titles.some((r) => r.test(t))) continue;
-    const b = [...el.querySelectorAll('button,[role=button]')].find((b) => /^(close|dismiss|got it|done|skip|skip tour|not now|maybe later|×|x)$/i.test((b.getAttribute('aria-label') || b.title || b.innerText || '').trim()) || /close|dismiss/i.test(b.getAttribute('aria-label') || ''));
+    const b = [...el.querySelectorAll('button,[role=button],a')].find((b) => /^(close|dismiss|got it|done|skip|skip tour|not now|maybe later|×|x)$/i.test((b.getAttribute('aria-label') || b.title || b.innerText || '').trim()) || /close|dismiss/i.test(b.getAttribute('aria-label') || ''));
     if (b) { b.click(); n++; }
   }
   // Preview 2, piece 4: AWS's console tour ("Service menu ... Next") has no

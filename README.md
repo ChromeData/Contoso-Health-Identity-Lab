@@ -183,7 +183,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Detection in Splunk](demo/loops/17-detection-in-splunk.webp)
 
-[Full clip, 1:12](demo/videos/N07-the-second-camera.mp4)
+[Full clip, 0:42](demo/videos/N07-the-second-camera.mp4)
 
 ### 18. Contain a compromised account
 

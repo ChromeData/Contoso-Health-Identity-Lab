@@ -55,8 +55,8 @@ async function download(log) {
   if (!serverDir()) throw new Error('the VS Code web server did not download (code serve-web)');
 }
 
-// Start the server if it is not up. It keeps running after this process ends
-// (the next run starts faster); stopServer() ends it.
+// Start the server if it is not up. It runs in this process's hidden console
+// and ends with it; the recorder also calls stopServer() when it is done.
 export async function startServer(log = () => {}) {
   if (await up()) return false;
   fs.mkdirSync(DATA, { recursive: true });
@@ -64,7 +64,13 @@ export async function startServer(log = () => {}) {
   const dir = serverDir();
   const out = fs.openSync(path.join(DATA, 'serve.log'), 'a');
   const p = spawn(path.join(dir, 'node.exe'), [path.join(dir, 'out', 'server-main.js'), '--host', '127.0.0.1', '--port', String(PORT), '--without-connection-token', '--accept-server-license-terms',
-    '--server-data-dir', DATA, '--disable-workspace-trust', '--telemetry-level', 'off'], { detached: true, windowsHide: true, stdio: ['ignore', out, out] });
+    '--server-data-dir', DATA, '--disable-workspace-trust', '--telemetry-level', 'off'], { windowsHide: true, stdio: ['ignore', out, out] });
+  // Not `detached`: on Windows a detached child has no console at all, so the
+  // server's own child processes each open a new, visible terminal window
+  // (seen 2026-11-15: a Windows Terminal window titled node.exe). With
+  // windowsHide alone the server gets a hidden console that its children
+  // share. The server then ends when this process ends, which is wanted:
+  // nothing stays behind after a recording.
   p.unref();
   fs.writeFileSync(path.join(DATA, 'server.pid'), String(p.pid));
   for (let k = 0; k < 90; k++) { if (await up()) { log(`VS Code web server up on ${BASE} (pid ${p.pid})`); return true; } await sleep(1000); }

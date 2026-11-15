@@ -94,7 +94,7 @@ The steps that show them fail (parts N01 and N09).
 ## Splunk (part N07)
 
 Part N07 shows the local Splunk. On a PC, Splunk runs in WSL (Ubuntu). No window opens.
-Steps 1 to 5 and the first command of step 7 ran on a PC on 2026-11-15. Steps 6, 8 and 9 and the second command of step 7 are not tested on a PC yet.
+These steps ran on a PC on 2026-11-15.
 
 1. Install Docker in WSL: `sudo apt-get install -y docker.io docker-compose-v2`
 2. Clone the lab in WSL. A clone in WSL has Unix line ends, which the shell scripts need:
@@ -122,8 +122,9 @@ Steps 1 to 5 and the first command of step 7 ran on a PC on 2026-11-15. Steps 6,
 8. Delete `lab/splunk/.state/AuditLogs.json`. It holds real log rows.
 9. Record: `npm run win:clips -- --part 7`
 
-The Splunk rule looks back one hour. Each recording session activates the read-only presenter role, and that activation is a row the rule finds.
-Do step 7 again 15 minutes after a recording session starts, then record part N07 in the same hour.
+The Splunk rule looks back one hour. A recording session activates the read-only presenter role, and that activation is a row the rule finds.
+The row gets to Log Analytics 5 to 15 minutes after the activation. Do step 7 after that, then record part N07 in the same hour.
+If the role is active already, a session writes no new row, and the search shows 0 events.
 
 ## Limits
 
@@ -135,9 +136,10 @@ Do step 7 again 15 minutes after a recording session starts, then record part N0
 - The check results in `tour/out` come from the last run of `tools/tour-extra-checks.sh` on the Mac. That script does not run on Windows.
 - The browser profile can have only one user at a time. To record while the profile is in use, add `--profile <other folder>`. The other profile has no GitHub sign-in.
 
-## Stop the hidden VS Code
+## The hidden VS Code
 
-The VS Code server stays up after a recording, so the next one starts faster. To stop it:
+The VS Code server starts with a recording and stops when the recording ends. It opens no window.
+If a recording was stopped by force, the server can stay up. To stop it:
 
 ```
 node -e "import('./win/vscode-web.mjs').then((m) => m.stopServer())"

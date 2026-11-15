@@ -27,7 +27,7 @@ import { execFile } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { stepsV2, PIECES_V2 } from '../steps.mjs';
 import { Browser, OVERLAY, chromium } from '../lib/browser.mjs';
-import { WebCode, DEMO, ROOT, lower } from './vscode-web.mjs';
+import { WebCode, DEMO, ROOT, lower, stopServer } from './vscode-web.mjs';
 import { Screencast } from './screencast.mjs';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -546,5 +546,6 @@ await P?.ctx.close().catch(() => {});
 await codeBrowser?.close().catch(() => {});
 await B.close().catch(() => {});
 server.close();
+if (codes.size) stopServer();   // the hidden VS Code server: nothing stays behind
 log(`output: ${OUT}`);
 process.exit(exit);

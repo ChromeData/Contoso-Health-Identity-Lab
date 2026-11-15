@@ -855,7 +855,12 @@ export function stepsV2(c) {
       // the live search and its count, labelled.
       previewStandIn: true,
       standIn: [{ do: 'web.open', url: SPLUNK_PIM, settle: 8000 }, { do: 'web.highlight', target: { re: '^\\d[\\d,]* (events?|results?)\\b', nth: 0 }, tag: 'The same rule, on the live log' }],
-      previewSay: S("This is the same rule, run on the live log. Twenty-two rules ran here at recording, and each one fired on test events.") },
+      // The Windows PC's Splunk is a new one: the test events (22 rules, E61)
+      // ran in the Mac's. Its rows are the tenant's own, and the row in the
+      // rule's hour is the read-only presenter's activation for this recording.
+      previewSay: S(process.platform === 'win32'
+        ? "This is the same rule, run on the tenant's own log. It finds a real activation from the last hour: the read-only account that records this video."
+        : "This is the same rule, run on the live log. Twenty-two rules ran here at recording, and each one fired on test events.") },
     { id: 'n07-both', piece: 7, say: S('Most hospitals run one SIEM. Building both shows the rules move with the hospital, whichever tool it owns.'), do: [] },
     { id: 'n07-table', piece: 7, say: S('This table lists all twenty-four rules and what each one catches. It is in the lab guide.'),
       do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: RULES_MD, line: lineOf(RULES_MD, /^\| 1 \|/) - 2, endLine: lineOf(RULES_MD, /^\| 24 \|/), highlight: true }] },
