@@ -364,6 +364,7 @@ async function act(a, s) {
         await B.page.waitForFunction(() => typeof window.__mapFocus === 'function', null, { timeout: 15000 });
         await sleep(1100);
         await B.page.evaluate(() => window.__mapFocus('overview')).catch((e) => log(`[${s.id}] map overview: ${e.message.split('\n')[0]}`));
+        await sleep(900);   // the fly to the overview has landed before the camera rolls
         await cam.show(B.page);
         await cam.resume();
       }
