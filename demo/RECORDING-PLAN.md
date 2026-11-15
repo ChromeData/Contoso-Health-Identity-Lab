@@ -13,7 +13,7 @@ with **Yes** in the trial column before that date. Those features stop when the 
 | 6 | The employee leaves | `N08-leaving.mp4` | Recorded 2026-11-15 | Yes | The termination in HR, then the account disabled in AD, Entra, ServiceNow and AWS, with the times. | E52, E187 |
 | 7 | Conditional Access and MFA | `N18-conditional-access.mp4` | Recorded 2026-11-15 | Yes | The policy list in Entra, one policy in Terraform, one pull request that enforces a policy, a sign-in log entry. | E12, E30 |
 | 8 | Break-glass accounts | `N19-break-glass.mp4` | Recorded 2026-11-15 | Yes | The two accounts, the exclusion test in Terraform, the drill output, the Sentinel rule. | E49 |
-| 9 | Temporary admin rights | `N05-the-master-key.mp4` | Not recorded (live sign-in) | Yes | The eligible role in PIM, the activation with a reason, the active role. Needs a live admin sign-in as Raj. | E16, E72 |
+| 9 | Temporary admin rights | `N05-the-master-key.mp4` | Recorded 2026-11-15 | Yes | The eligible role in PIM, the activation with a reason, the active role. Needs a live admin sign-in as Raj. | E16, E72 |
 | 10 | Admin passwords and recorded sessions | `N11-admin-passwords-and-sessions.mp4` | Recorded 2026-11-15 | No | The Key Vault secrets, the Terraform state with no password, the Bastion session recording. | E182, E186 |
 | 11 | Harden Active Directory | `N12-hardening-ad.mp4` | Recorded 2026-11-15 | No | The tier groups and the policy on DC01, a refused sign-in, the scan before and after. | - |
 | 12 | Admin access in AWS and Azure | `N15-aws-server-access-and-azure-least-privilege.mp4` | Recorded 2026-11-15 | Yes | The PIM group for AWS admin, a Session Manager shell, the narrow Azure role and its limits. | - |

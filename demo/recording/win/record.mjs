@@ -235,7 +235,21 @@ async function codeFor(ws) {
   }
   return v;
 }
+// The private window: one more person's own sign-in, in a context of its own
+// (never mixed with the presenter's). It closes with the run; nothing is kept.
+let P = null;
+async function priv() {
+  if (P && !P.page.isClosed()) return P;
+  codeBrowser ||= await chromium.launch({ headless: true });
+  const ctx = await codeBrowser.newContext({ viewport: { width: VIEW.full.width, height: VIEW.full.height }, deviceScaleFactor: VIEW.full.scale, locale: 'en-US' });
+  await ctx.addInitScript(OVERLAY);
+  const page = await ctx.newPage();
+  P = Object.create(B);
+  Object.assign(P, { ctx, page, size: async () => {}, open: async (url, o) => { await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 }); await sleep(o?.settle ?? 2500); } });
+  return P;
+}
 async function front(app) {
+  if (app === 'private') { const p = await priv(); await cam.show(p.page); c.front = app; return; }
   if (app === 'code') { if (!V?.ready) V = await codeFor(c.wsFile); await cam.show(V.page); }
   else { if (!B.up) await B.launch(); await cam.show(B.page); }
   c.front = app;
@@ -262,10 +276,10 @@ async function ensureEntra() {
 const WRITE = new Set(['cloudsync.restart', 'pod', 'code.type', 'code.save', 'code.commit', 'code.push', 'gh.createPr', 'gh.merge', 'gh.closePr', 'gh.runWorkflow', 'tap.signin', 'staff.signin',
   'drill.ensure', 'preview.approve', 'preview.contain', 'preview.secondCheck', 'identity.signin', 'pim.deactivate', 'hr.hire', 'hr.leave']);
 const CLICKY = new Set(['web.click', 'web.type', 'private.click', 'private.type']);
-const NAV = new Set(['code.stop', 'code.check', 'web.open', 'activate', 'find', 'require', 'code.open', 'code.closeAll', 'web.waitFor', 'web.find', 'web.clickIf']);
-const VISUAL = new Set(['map.focus', 'web.video', 'web.show', 'web.click', 'web.highlight', 'code.highlight', 'code.command', 'code.tree', 'card']);
+const NAV = new Set(['identity.signin', 'private.open', 'code.stop', 'code.check', 'web.open', 'activate', 'find', 'require', 'code.open', 'code.closeAll', 'web.waitFor', 'web.find', 'web.clickIf']);
+const VISUAL = new Set(['private.click', 'private.highlight', 'map.focus', 'web.video', 'web.show', 'web.click', 'web.highlight', 'code.highlight', 'code.command', 'code.tree', 'card']);
 const VISUAL_AFTER = new Set(['code.diff', 'code.file', 'code.changes', 'code.stop', 'code.check']);
-const FOLLOW = new Set(['web.highlight', 'code.highlight']);
+const FOLLOW = new Set(['web.highlight', 'private.highlight', 'code.highlight']);
 const val = (v) => {
   if (typeof v !== 'function') return v;
   let r; try { r = v(c); } catch { r = null; }
@@ -373,7 +387,30 @@ async function act(a, s) {
       break;
     }
     case 'banner': case 'banner.previewOnly': { if (a.do === 'banner.previewOnly') break; if (a.ctx && a.ctx !== 'browser') break; await B.page?.evaluate((t) => window.__ck && window.__ck.banner(t), val(a.text)).catch(() => {}); break; }
-    case 'activate': if (a.app === 'code' || a.app === 'browser') await front(a.app); else throw new Error(`not in the hidden recorder yet: the ${a.app} window`); break;
+    case 'activate': if (['code', 'browser', 'private'].includes(a.app)) await front(a.app); else throw new Error(`not in the hidden recorder yet: the ${a.app} window`); break;
+    // A lab person signs in, in the private window, with the lab's sign-in
+    // tool (passkey or code from this PC's Credential Manager). A sign-in
+    // changes nothing in the lab. The owner's account and the emergency
+    // accounts are refused by the tool itself.
+    case 'identity.signin': {
+      T ||= await import(pathToFileURL(path.join(LAB, 'lab', 'scripts', 'demo', 'signin', 'identity.mjs')).href);
+      const p = await priv();
+      log(`sign-in: ${a.id} (private window)`);
+      await T.signIn(a.id, a.url, { context: p.ctx, page: p.page });
+      await p.page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {});
+      await sleep(2500);
+      await front('private');
+      break;
+    }
+    case 'private.open': { const p = await priv(); await front('private'); await p.open(val(a.url), { settle: a.settle ?? 3000 }); await cam.show(p.page); break; }
+    case 'private.click': { const p = await priv(); await p.click(a.target); await p.settle(a.settle ?? 2500); break; }
+    case 'private.highlight': {
+      const p = await priv(); const ts = [].concat(val(a.target)); let last;
+      if (c.front !== 'private') await front('private');
+      for (const t of ts) { try { await p.highlight(t, val(a.tag) || ''); last = null; break; } catch (e) { last = e; } }
+      if (last) throw last;
+      break;
+    }
     case 'pause': await sleep(a.ms || 1000); break;
     case 'find': if (a.what === 'sam') { if (!c.sam) throw new Error('Sam is not in Entra now, and there is no stand-in user'); if (c.sam.standIn) log(`[${s.id}] Sam is not in Entra now: showing ${c.sam.standIn}`); } break;
     case 'require': log(`[${s.id}] check "${a.check}" not run (dry)`); break;
@@ -389,7 +426,8 @@ const holdMs = (s) => Math.round(Math.max(3500, Math.min(16000, words(s) / 2.7 *
 async function runStep(s, report) {
   const standIn = !!((s.cloud || s.previewStandIn) && s.standIn);
   const all = standIn ? s.standIn : (s.do || []);
-  const skipped = all.filter((a) => !a.previewOnly && (WRITE.has(a.do) || (s.write && CLICKY.has(a.do))));
+  // identity.signin is in the engine's list of writes (a dry run on the Mac does not sign people in). Here it is done: it is the only way to show that person's page.
+  const skipped = all.filter((a) => !a.previewOnly && a.do !== 'identity.signin' && (WRITE.has(a.do) || (s.write && CLICKY.has(a.do))));
   const acts = all.filter((a) => !a.previewOnly && !skipped.includes(a));
   const follows = acts.filter((a) => FOLLOW.has(a.do)).length;
   const total = holdMs(s);
@@ -401,7 +439,7 @@ async function runStep(s, report) {
     // A click that only gets to a page is not filmed (the page it loads is
     // not the picture): the camera rolls again for the highlight. A step
     // marked showClicks films its clicks.
-    const getsThere = /^web\.click(If)?$/.test(a.do) && !s.showClicks;
+    const getsThere = /^(web\.click(If)?|private\.click)$/.test(a.do) && !s.showClicks;
     // The camera starts again AFTER an action that shows something (below):
     // a highlight first waits for its element, and that wait is not filmed.
     if (NAV.has(a.do) || getsThere) await cam.pause();
@@ -460,6 +498,7 @@ try {
 } catch (e) { log(`STOPPED: ${e.stack || e.message}`); exit = 1; }
 await cam.close().catch(() => {});
 for (const v of codes.values()) { await v.call('chrome', { hidden: false }).catch(() => {}); await v.close().catch(() => {}); }
+await P?.ctx.close().catch(() => {});
 await codeBrowser?.close().catch(() => {});
 await B.close().catch(() => {});
 server.close();

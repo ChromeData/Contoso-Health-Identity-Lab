@@ -113,7 +113,9 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 **An admin has no standing rights. He activates the help-desk role in PIM for a limited time, with a reason.**
 
-The clip for this chapter comes later.
+![Temporary admin rights](demo/loops/09-temporary-admin-rights.webp)
+
+[Full clip, 1:09](demo/videos/N05-the-master-key.mp4)
 
 ### 10. Admin passwords and recorded sessions
 

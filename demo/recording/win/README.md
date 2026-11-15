@@ -14,7 +14,8 @@ It runs the same steps (`steps.mjs`) in a hidden browser and writes one clip for
 | Camera | The frames of the hidden pages, sent to ffmpeg. 1920 x 1080, 15 frames each second. |
 | Sign-in | The lab sign-in tool (`lab/scripts/demo/signin`). It reads Windows Credential Manager. |
 
-The recorder signs in as `adm-presenter` only. That account can read. It cannot change the lab.
+The recorder signs in as `adm-presenter`. That account can read. It cannot change the lab.
+One part also signs in a lab person in a private window, to show that person's page.
 A step that changes the lab is not done. The clip shows its captured screen, or the report names the step.
 
 ## Before the first recording
@@ -92,7 +93,8 @@ The steps that show them fail (parts N01, N09, N14 and N16).
 
 ## Limits
 
-- The staff window, the AWS window, the private window, Teams, Splunk and OrangeHRM are not in the recorder yet. A step that has a captured screen shows that screen. A step with no captured screen fails (parts N05 and N07).
+- The staff window, the AWS window, Teams, Splunk and OrangeHRM are not in the recorder yet. A step that has a captured screen shows that screen. A step with no captured screen fails (part N07).
+- The private window signs in one lab person (part N05: `adm-raj.patel`, with the passkey). It shows the page. It does not activate a role.
 - Steps that need a live check of the lab (`require`) are not checked.
 - The clip shows no browser tabs and no address bar. A hidden browser has none.
 - The check results in `tour/out` come from the last run of `tools/tour-extra-checks.sh` on the Mac. That script does not run on Windows.
