@@ -21,8 +21,9 @@ python demo/build_pages.py
 
 ## How it was made
 
-- **The map leads.** Every part starts from a stop on the lab map. The tool
-  zooms the map to that stop, then opens the real page behind it.
+- **The guide leads.** Every part starts from a stop in the lab guide, a plain
+  document. The tool scrolls the guide to that stop and marks it, then opens
+  the real page behind it.
 - **A real pointer.** The tool moves the actual mouse pointer and types with
   real key presses in the browser and in VS Code, so what you see is what a
   person would do. It never types a password; sign-ins are done by hand,

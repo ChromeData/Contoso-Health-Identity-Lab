@@ -34,7 +34,9 @@ NOT READY lines.
 
 **The maps on camera** are served by the cockpit itself, read only and without
 the pairing key: `http://localhost:4747/map` (the lab map, `map/lab-map.html`)
-and `http://localhost:4747/map/v24?video` (the presenter map). The address bar
+and `http://localhost:4747/guide/?video` (the lab guide, `guide/index.html`: a
+plain document that took the place of the presenter map on 2026-11-15; the
+clips show the guide, not a map). The address bar
 never shows a `/Users/...` path. Only those two pages are served, and only to
 this Mac.
 

@@ -1,14 +1,14 @@
 # Intro script (part N00)
 
-What Michael reads on camera for the intro, while he walks the lab map. One line per step, in order, grouped by the map stop on screen. Each line shows the map spot in brackets.
+What Michael reads on camera for the intro, while he scrolls the lab guide (`recording/guide/index.html`, a plain document). One line per step, in order, grouped by the guide stop on screen. Each line shows the guide spot in brackets.
 Source: the `piece: 0` steps in [`recording/steps.mjs`](recording/steps.mjs). If the two differ, `steps.mjs` wins.
 
-## Opening: the whole map
+## Opening: the top of the guide
 
 1. [`overview`] Hi, I'm Michael. I'm an identity and privileged access engineer. I build IAM, PAM and cloud security labs, and this is my biggest one. IAM is identity and access management. PAM is privileged access management: how admin power is guarded.
 2. [`overview`] This is my identity lab. It runs the logins and the access for Contoso Health, a made-up hospital of about five thousand staff. Identity means who you are. Access means what you may open.
 3. [`overview`] The lab proves four things. Access follows HR. Admin power is borrowed, not kept. Misuse gets caught. And an auditor can check all of it.
-4. [`overview`] This map is the whole lab. The top row is how it was built. The bottom row is the lab running, from hire to leaving.
+4. [`overview`] This guide is the whole lab. Stops one to five are how it was built. Stops six to fifteen are the lab running, from hire to leaving.
 
 ## Setup stop 1: the sign-ups
 

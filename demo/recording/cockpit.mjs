@@ -249,7 +249,7 @@ const page = fs.readFileSync(path.join(here, 'ui', 'index.html'), 'utf8');
 // The lab maps, served read-only without the pairing key (the recording
 // browser shows this address on camera: http://localhost:<port>/map, not a
 // /Users/... file path, and no key). Only these two pages, only to this Mac.
-const MAP_PAGES = { '/map': 'lab-map.html', '/map/v24': 'v24.html' };
+const MAP_PAGES = { '/map': 'lab-map.html', '/guide': '../guide/index.html' };   // /guide: the lab guide (it replaced the v24 map, 2026-11-15)
 Browser.MAP_URL = `http://localhost:${port}/map`;
 // The cards (/card#...) and captured screens (/shots/...), the same way
 // (lib/localurl.mjs): no key, no /Users/... path, this Mac only.
@@ -257,6 +257,10 @@ setLocalBase(`http://localhost:${port}`);
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
+  if (url.pathname === '/guide/guide-data.js' && req.method === 'GET' && /^(127\.0\.0\.1|::1|::ffff:127\.0\.0\.1)$/.test(req.socket.remoteAddress || '')) {
+    fs.readFile(path.join(here, 'guide', 'guide-data.js'), (e, buf) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' }); res.end(buf); });
+    return;
+  }
   const mapPage = MAP_PAGES[url.pathname.replace(/\/$/, '')];
   if (mapPage && (req.method === 'GET' || req.method === 'HEAD')) {
     const local = /^(127\.0\.0\.1|::1|::ffff:127\.0\.0\.1)$/.test(req.socket.remoteAddress || '');

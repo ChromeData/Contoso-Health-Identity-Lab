@@ -47,7 +47,9 @@ const OHRM_PROBE = 'http://127.0.0.1:8585/web/index.php/pim/viewEmployeeList';
 // The v24 presenter map (copy of the published artifact), in video mode.
 // Served at http://localhost:<port>/map/v24 when the cockpit's server runs
 // (Browser.MAP_URL): the address bar shows no /Users/... path on camera.
-const mapV24 = () => Browser.MAP_URL ? `${Browser.MAP_URL}/v24?video` : `file://${path.join(DEMO, 'cockpit', 'map', 'v24.html')}?video`;
+// 2026-11-15: the v24 map is gone. The same address function now gives the lab
+// guide (guide/index.html, a plain document with the same window.__mapFocus).
+const mapV24 = () => Browser.MAP_URL ? `${Browser.MAP_URL.replace(/\/map$/, '')}/guide/?video` : `file://${path.join(DEMO, 'cockpit', 'guide', 'index.html')}?video`;
 // The local PAM harness the tour shows (a worktree of the lab, its stack on
 // the Splunk Colima VM); override with COCKPIT_PAM_DIR.
 const PAM_DIR = process.env.COCKPIT_PAM_DIR || path.join(DEMO, 'cockpit', '.pam-tour', 'lab', 'pam');

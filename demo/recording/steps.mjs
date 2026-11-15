@@ -496,7 +496,7 @@ const rulesTable = () => {
   } catch { return null; }
 };
 const todo = (what) => ({ do: 'todo', what });
-// The v24 map: fly to a stop or tile (engine map.focus, window.__mapFocus).
+// The lab guide (guide/index.html; before 2026-11-15 the v24 map): go to a stop or a piece (engine map.focus, window.__mapFocus).
 const M = (target) => ({ do: 'map.focus', target });
 
 export const PIECES_V2 = [
@@ -587,7 +587,7 @@ export function stepsV2(c) {
       hand: 'Say this in your own words (the owner on camera, over the map).', do: [M('overview')] },
     { id: 'n00-lab', piece: 0, say: S("This is my identity lab. It runs the logins and the access for Contoso Health, a made-up hospital of about five thousand staff. Identity means who you are. Access means what you may open."), do: [M('overview')] },
     { id: 'n00-four', piece: 0, say: S('The lab proves four things. Access follows HR. Admin power is borrowed, not kept. Misuse gets caught. And an auditor can check all of it.'), do: [M('overview')] },
-    { id: 'n00-map', piece: 0, say: S("This map is the whole lab. The top row is how it was built. The bottom row is the lab running, from hire to leaving."), do: [M('overview')] },
+    { id: 'n00-map', piece: 0, say: S("This guide is the whole lab. Stops one to five are how it was built. Stops six to fifteen are the lab running, from hire to leaving."), do: [M('overview')] },
     // guide 1: the sign-ups
     { id: 'n00-signups', piece: 0, say: S("Stop one: the sign-ups. Each piece is a real account, on a free trial or a free developer edition. AWS is pay as you go."), do: [M('setup:1')] },
     { id: 'n00-entra', piece: 0, say: S("The center is Microsoft Entra ID, Microsoft's cloud login. It is the work badge every other app trusts. A nurse signs in once, and the badge opens what she needs."), do: [M('setup:1.2')] },
