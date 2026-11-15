@@ -30,7 +30,7 @@ The 23 chapters below show the lab in operation. Each loop is a silent clip at a
 | Governance and audit | [15. Audit evidence](#15-audit-evidence) | Seven records go to a write-once store. |
 | Detect and respond | [16. Detection in Sentinel](#16-detection-in-sentinel) | A rule in code opens an incident. |
 | Detect and respond | [17. Detection in Splunk](#17-detection-in-splunk) | The same rules run in a second SIEM. |
-| Detect and respond | [18. Contain a compromised account](#18-contain-a-compromised-account) | A person approves in Teams. A playbook contains the account. |
+| Detect and respond | [18. Contain a compromised account](#18-contain-a-compromised-account) | A person approves in Teams. A playbook disables the account. |
 | Platform as code | [19. Change access with code](#19-change-access-with-code) | A Terraform change goes from commit to pull request to plan. |
 | Platform as code | [20. Checks on the code](#20-checks-on-the-code) | Scanners that must fail on a bad file. |
 | Platform as code | [21. The lab in VS Code and GitHub](#21-the-lab-in-vs-code-and-github) | The code, the pipeline, and the approval. |
@@ -175,7 +175,7 @@ The clip for this chapter comes later.
 
 ### 18. Contain a compromised account
 
-**A Sentinel incident asks a named approver in Teams. After the approval, a playbook contains the account.**
+**A Sentinel incident asks a named approver in Teams. After the approval, a playbook revokes the sessions and disables the account.**
 
 The clip for this chapter comes later.
 

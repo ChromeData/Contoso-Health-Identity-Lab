@@ -508,7 +508,7 @@ export const PIECES_V2 = [
   { n: 4.5, slug: 'N04b-the-service-desk', title: 'The service desk: what staff ask IT for', status: 'built', stops: ['apps', 'joiner', 'leaver'], sessions: ['entra'], autoRetake: true, reset: null },
   { n: 5, slug: 'N05-the-master-key', title: 'The master key', status: 'built', autoRetake: true, stops: ['privileged'], sessions: [], reset: 'pim',
     after: [{ do: 'pim.deactivate', group: 'PIM-Tier1-Helpdesk', upn: 'adm-raj.patel@contosohealthlab.onmicrosoft.com', liveOnly: true }] },
-  { n: 6, slug: 'N06-the-cameras', title: 'The cameras (Sentinel)', status: 'built', autoRetake: true, stops: ['detect'], sessions: ['entra', 'staff', 'teams'], reset: null },
+  { n: 6, slug: 'N06-the-cameras', title: 'The cameras (Sentinel)', status: 'built', autoRetake: true, stops: ['detect'], sessions: ['entra'], reset: null },
   { n: 7, slug: 'N07-the-second-camera', title: 'The second camera (Splunk)', status: 'built', stops: ['detect'], sessions: ['splunk'], autoRetake: true, reset: null },
   { n: 8, slug: 'N08-leaving', title: 'Leaving', status: 'built', stops: ['leaver'], sessions: ['entra'], autoRetake: true, reset: null },
   { n: 9, slug: 'N09-the-logbook', title: 'The logbook', status: 'built', stops: ['proof'], sessions: ['entra'], autoRetake: true, reset: null },
@@ -520,6 +520,14 @@ export const PIECES_V2 = [
   { n: 15, slug: 'N15-aws-server-access-and-azure-least-privilege', title: 'Server access in AWS, and least privilege in Azure', status: 'built', autoRetake: true, stops: ['ssm-least-priv'], sessions: [], reset: null },
   { n: 16, slug: 'N16-code-checks', title: 'Checks that prove the code is safe', status: 'built', stops: ['delivery'], sessions: [], autoRetake: true, reset: null },
   { n: 17, slug: 'N17-close-vscode-github', title: 'Close: the whole lab from VS Code and GitHub', status: 'built', stops: ['delivery', 'pipeline'], sessions: [], autoRetake: true, reset: null },
+  // Parts N18-N22 (2026-11-14): one clip for each README chapter that had none. They were written on a
+  // Windows PC from the lab's files and the patterns above, and have NOT run against the tenant yet:
+  // check each with `node cockpit.mjs --check N18` (and so on) before a take, then `npm run points`.
+  { n: 18, slug: 'N18-conditional-access', title: 'Conditional Access and MFA', status: 'built', stops: ['signin'], sessions: ['entra'], autoRetake: true, reset: null },
+  { n: 19, slug: 'N19-break-glass', title: 'Break-glass accounts', status: 'built', stops: ['signin', 'privileged'], sessions: [], autoRetake: true, reset: null },
+  { n: 20, slug: 'N20-the-employee-changes-jobs', title: 'The employee changes jobs', status: 'built', stops: ['joiner'], sessions: [], autoRetake: true, reset: null },
+  { n: 21, slug: 'N21-service-accounts', title: 'Service accounts and robots', status: 'built', stops: ['privileged'], sessions: [], autoRetake: true, reset: null },
+  { n: 22, slug: 'N22-contain-an-account', title: 'Contain a compromised account', status: 'built', autoRetake: true, stops: ['detect'], sessions: ['entra', 'staff', 'teams'], reset: null },
 ];
 
 // c.hire: who is hired in N02 and leaves in N08. Live: Sam Rivera, Cloud
@@ -535,6 +543,22 @@ export function stepsV2(c) {
   const ad = (f) => `${c.v2?.ad}/lab/evidence/ad-hardening/20261107T0057Z/${f}`;
   const okta = (f) => `${c.v2?.okta}/${f}`;
   const v2f = (k, f) => `${c.v2?.[k]}/${f}`;
+  // N18-N22: files as they are on main (the .v2/ssm checkout follows origin/main).
+  const onMain = (f) => v2f('ssm', f);
+  const CAMAIN = onMain('lab/terraform/modules/conditional-access/main.tf');
+  const CABASE = onMain('lab/terraform/modules/conditional-access/baseline.tf');
+  const TFVARS = onMain('lab/terraform/envs/dev/lab.tfvars');
+  const BGKQL = onMain('lab/kql/break-glass-signin.kql');
+  const BGDRILL = onMain('lab/evidence/drills/2026-11-05T1041Z-break-glass-drill.json');
+  const BGRUNBOOK = onMain('lab/docs/runbooks/break-glass-drill.md');
+  const MOVER = onMain('lab/scripts/powershell/03-Mover.ps1');
+  const BIRTHRIGHT = onMain('lab/iga/birthright-rules.json');
+  const CAPLOG = onMain('lab/evidence/capture-log.csv');
+  const NHISCRIPT = onMain('lab/scripts/powershell/06-NHI-Inventory.ps1');
+  const NHISUM = onMain('lab/evidence/nhi/20261105T101425Z/nhi-summary.json');
+  const APPPOLICY = onMain('lab/scripts/powershell/post-apply/Set-AppGovernancePolicy.ps1');
+  const CONTAIN = onMain('lab/monitoring/playbook-contain.json');
+  const CAPOL = `${E}Microsoft_AAD_ConditionalAccess/ConditionalAccessBlade/~/Policies`;
   const BASTION = (f) => `file://${path.join(V2.demo, 'captures', 'bastion', '2026-11-07', f)}`;
   // N02/N08: the captured OrangeHRM run (2026-11-07, E170-E173) and OrangeHRM itself.
   const OHRMEV_F = (f) => path.join(V2.demo, 'captures', 'E170-E173-orangehrm', f);
@@ -812,25 +836,6 @@ export function stepsV2(c) {
       do: [{ do: 'web.click', target: [{ role: 'tab', name: /^Assets/ }, { re: '^Assets \\(\\d+\\)$', nth: 0 }], timeout: 20000, settle: 4000 },
         { do: 'web.click', target: { re: '^Users \\(\\d+\\)$', nth: 0 }, settle: 4000 },
         { do: 'web.highlight', target: [{ re: '^ADM Raj Patel$', nth: 0 }, { re: 'adm-raj\\.patel', nth: 0 }], tag: 'Raj, who switched it on' }] },
-    // The drill (slice 5): a throwaway itdr-drill account and one test
-    // incident. Arming it creates both: a lab change, so a preview shows the
-    // newest answered drill card instead.
-    { id: 'n06-drill', piece: 6, write: true, cloud: true, say: S('Next is a drill. A script makes a throwaway account and raises one test incident about it. Nothing was stolen.'),
-      do: [{ do: 'drill.ensure' }, { do: 'require', check: 'drillPending' }, { do: 'teams.guard', phase: 'before' }, { do: 'web.open', ctx: 'staff', url: SOC_CHANNEL, settle: 12000 }, { do: 'teams.guard', phase: 'after' }],
-      standIn: [{ do: 'web.show', url: DRILLEV('01-drill-card-contain.png') }],
-      previewSay: S('Next is a drill. A script makes a throwaway account and raises one test incident about it. This is the card from an earlier drill, on November fifth. Nothing was stolen.') },
-    { id: 'n06-contain', piece: 6, write: true, cloud: true,
-      say: S('The alert goes to the security team in Teams. The playbook never acts on its own. A person must press Contain, because a wrong lockout of a clinician hurts patient care.'),
-      hand: 'Press "Contain (revoke + disable)" on the card.',
-      do: [{ do: 'web.highlight', ctx: 'staff', target: [{ css: 'button', hasText: /^Contain \(revoke \+ disable\)$/, last: true }, { role: 'button', name: /^Contain \(revoke \+ disable\)$/ }], tag: 'Nothing happens until someone says yes' }],
-      wait: { check: 'drillContained', waiting: 'Waiting for your Contain on the card (still recording)', ready: 'Drill account switched off' },
-      previewSay: S('The alert goes to the security team in Teams. The playbook never acts on its own. A person must press Contain, because a wrong lockout of a clinician hurts patient care. A preview presses nothing.'),
-      standIn: [{ do: 'web.show', url: DRILLEV('01-drill-card-contain.png') }] },
-    { id: 'n06-contained', piece: 6, needs: 'drill', cloud: true,
-      say: S('Approved. The drill account is signed out everywhere and switched off. The decision is written on the incident and on the ServiceNow ticket.'),
-      do: [{ do: 'require', check: 'drillContained' }, { do: 'web.highlight', ctx: 'staff', target: (x) => [...(x.drill?.cardMark ? [{ css: `[data-ck-decided="${x.drill.cardMark}"] div`, hasText: /^Decision recorded/, last: true }] : []), { css: 'div', hasText: /^Decision recorded/, last: true }], tag: 'Done, with a name on it' }],
-      previewSay: S('In an earlier drill, a person approved. The drill account was signed out everywhere and switched off, and the decision was written on the incident and on the ServiceNow ticket.'),
-      standIn: [{ do: 'web.show', url: DRILLEV('02-decision-recorded.png') }] },
 
     // ================================================================= N07
     { id: 'n07-rule', piece: 7, say: S("Here is the same rule in SPL, Splunk's search language. Each KQL rule has an SPL twin."),
@@ -1054,5 +1059,96 @@ export function stepsV2(c) {
       standIn: [{ do: 'web.open', url: (x) => x.issue.url }] },
     { id: 'n17-thanks', piece: 17, hold: 15, say: S('I built this with an AI coding assistant, and the history says so. I set the goals, made the design calls, and I own every decision. Thanks for watching.'),
       do: [M('overview')] },
+
+    // ================================================================= N18
+    // Conditional Access and MFA (README chapter 7; capture-log E12, E30). Read only.
+    { id: 'n18-rules', piece: 18, say: S('Conditional Access is the set of sign-in rules. It checks every sign-in: who, from where, and how the person proved it.'),
+      do: [M('lab:10')] },
+    { id: 'n18-code', piece: 18, say: S('The rules are Terraform code. Two safety rules sit at the top. Every policy excludes the emergency accounts. And every policy starts in report-only mode.'),
+      do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: CAMAIN, line: lineOf(CAMAIN, /^# SAFETY: every policy excludes break-glass/), endLine: lineOf(CAMAIN, /^# SAFETY: every policy excludes break-glass/) + 2, highlight: true }] },
+    { id: 'n18-states', piece: 18, say: S('This list sets the state of each policy. Enabled means enforced. Report-only means the policy logs what it would block, and blocks nothing.'),
+      do: [{ do: 'code.file', file: TFVARS, line: lineOf(TFVARS, /^ca_policy_states = \{/), endLine: lineOf(TFVARS, /^\s*CA021\s*=/), highlight: true }] },
+    { id: 'n18-graduate', piece: 18, say: S('One pull request enforces one policy. This one enforced CA001, the second check for all users. Its report-only data showed no sign-in that it would block.'),
+      do: [{ do: 'web.open', url: `${GH}/pull/79`, settle: 5000 }, { do: 'web.highlight', target: [{ re: 'CA001: report-only to enabled', nth: 0 }, { re: 'report-only to enabled', nth: 0 }], tag: 'One policy, one pull request' }] },
+    { id: 'n18-portal', piece: 18, say: S('In Entra, the same policies show with their state. Nine are on.'),
+      do: [{ do: 'web.open', url: CAPOL, settle: 8000 }, { do: 'web.highlight', target: [{ re: 'CA001 - Require MFA for all users', row: true }, { re: '^CA001', nth: 0 }], tag: 'On: enforced' }] },
+    { id: 'n18-reportonly', piece: 18, say: S('Two stay in report-only mode: CA002 and CA021. Both need a hardware key for each admin first, and the lab has none.'),
+      do: [{ do: 'web.highlight', target: [{ re: '^CA002', row: true }, { re: '^CA002', nth: 0 }], tag: 'Report-only: logs, blocks nothing' }] },
+    { id: 'n18-why', piece: 18, say: S('Why these rules? A stolen password alone must not open an account. HIPAA requires that each person is proven.'),
+      do: [M('tile:CAPR')] },
+
+    // ================================================================= N19
+    // Break-glass accounts (README chapter 8; capture-log E49, ADR 0003). Files only: no sign-in.
+    { id: 'n19-why', piece: 19, say: S('Two emergency admin accounts exist for one case: the normal admin sign-in does not work. A bad policy can lock out every admin. These accounts can undo it.'),
+      do: [M('tile:BG')] },
+    { id: 'n19-exclude', piece: 19, say: S('In the code, each policy excludes the emergency group. The drill checks that all policies in the tenant still do.'),
+      do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: CABASE, line: lineOf(CABASE, /excluded_groups = \[var\.break_glass_group_object_id\]/), endLine: lineOf(CABASE, /excluded_groups = \[var\.break_glass_group_object_id\]/), highlight: true }] },
+    { id: 'n19-alarm', piece: 19, say: S('This detection rule reports every sign-in by an emergency account, success or failure. One sign-in is sufficient for an alert.'),
+      do: [{ do: 'code.file', file: BGKQL, line: lineOf(BGKQL, /^\/\/ WHAT IT CATCHES/), endLine: lineOf(BGKQL, /^\/\/ WHAT IT CATCHES/) + 7, highlight: true }] },
+    { id: 'n19-drill', piece: 19, say: S('This is the record of the first drill, on November fifth. Each check passed: the two accounts, the policy exclusion, and the passkey of each account.'),
+      do: [{ do: 'code.file', file: BGDRILL, line: lineOf(BGDRILL, /"postDrillChecks"/), endLine: lineOf(BGDRILL, /"Keys bg-admin-02"/) + 2, highlight: true }] },
+    { id: 'n19-result', piece: 19, say: S('In that drill, both accounts signed in with a passkey only. Sentinel raised a high incident about ten minutes after the sign-ins reached the workspace.'),
+      do: [{ do: 'code.file', file: BGRUNBOOK, line: lineOf(BGRUNBOOK, /Status: RAN/), endLine: lineOf(BGRUNBOOK, /Status: RAN/) + 5, highlight: true }] },
+    { id: 'n19-limit', piece: 19, say: S('One limit. In the lab, the passkeys are software keys on one computer. Production uses two hardware keys for each account, in separate safes.'),
+      do: [M('tile:BG')] },
+
+    // ================================================================= N20
+    // The employee changes jobs (README chapter 5; capture-log E52). Files only.
+    { id: 'n20-mover', piece: 20, say: S('A mover is an employee with a new job. HR changes the department. No ticket goes to IT.'),
+      do: [M('lab:8')] },
+    { id: 'n20-script', piece: 20, say: S('The change goes from HR to Active Directory, then to Entra. This script does not write the department. It waits for the value from HR, then checks the access.'),
+      do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: MOVER, line: lineOf(MOVER, /^\.SYNOPSIS/), endLine: lineOf(MOVER, /^\.SYNOPSIS/) + 6, highlight: true }] },
+    { id: 'n20-rules', piece: 20, say: S('Access follows the job. Each access package has one automatic policy. The policy reads the department and the job title that HR sends.'),
+      do: [{ do: 'code.file', file: BIRTHRIGHT, line: lineOf(BIRTHRIGHT, /"jobProfiles"/), endLine: lineOf(BIRTHRIGHT, /"jobProfiles"/) + 8, highlight: true }] },
+    { id: 'n20-run', piece: 20, say: S('In the first live run, Marcus Bello moved from Nursing to ICU. Active Directory had the change first. Entra had it at the next Cloud Sync cycle.'),
+      do: [{ do: 'code.file', file: CAPLOG, line: lineOf(CAPLOG, /^E52,/), endLine: lineOf(CAPLOG, /^E52,/), highlight: true }] },
+    { id: 'n20-grace', piece: 20, say: S('The old access does not stop at once. Entra sets it to expire after 72 hours.'),
+      do: [M('tile:BIRTH')] },
+
+    // ================================================================= N21
+    // Service accounts and robots (README chapter 14; capture-log E21, E70, ADR 0018). Files only.
+    { id: 'n21-what', piece: 21, say: S('A non-human identity is an account for software, not for a person. The pipeline is one. The HR connector is one.'),
+      do: [M('tile:NHI')] },
+    { id: 'n21-script', piece: 21, say: S('This script lists every non-human identity in the tenant. It checks the owner, the secrets, the permissions, and the last sign-in.'),
+      do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: NHISCRIPT, line: lineOf(NHISCRIPT, /^\.SYNOPSIS/), endLine: lineOf(NHISCRIPT, /^\.SYNOPSIS/) + 7, highlight: true }] },
+    { id: 'n21-findings', piece: 21, say: S('The first run in the tenant found 19 identities and 27 findings: 3 critical, 2 high, 19 medium, and 3 low.'),
+      do: [{ do: 'code.file', file: NHISUM, line: lineOf(NHISUM, /"findingsBySeverity"/), endLine: lineOf(NHISUM, /"findingsBySeverity"/) + 4, highlight: true }] },
+    { id: 'n21-owasp', piece: 21, say: S('Each finding has an ID from the OWASP Non-Human Identities Top 10, a public list of the usual faults.'),
+      do: [{ do: 'code.highlight', file: NHISUM, line: lineOf(NHISUM, /"findingsByOwasp"/), endLine: lineOf(NHISUM, /"findingsByOwasp"/) + 10 }] },
+    { id: 'n21-owner', piece: 21, say: S('Eight identities have no named owner. That is the list in work: each one gets an owner.'),
+      do: [M('tile:NHI')] },
+    { id: 'n21-policy', piece: 21, say: S('A tenant policy prevents the fault on new apps. A new app cannot have a client secret, and a new certificate lives 180 days at most.'),
+      do: [{ do: 'code.file', file: APPPOLICY, line: lineOf(APPPOLICY, /^\.SYNOPSIS/), endLine: lineOf(APPPOLICY, /^\.SYNOPSIS/) + 6, highlight: true }] },
+
+    // ================================================================= N22
+    // Contain a compromised account (README chapter 18; capture-log E40, E41, ADR 0017).
+    // The three drill steps came from N06 and keep their n06- ids, so their speech points still match.
+    { id: 'n22-respond', piece: 22, say: S('Detection is the first half. The response is the second half.'),
+      do: [M('lab:12')] },
+    // The drill (slice 5): a throwaway itdr-drill account and one test
+    // incident. Arming it creates both: a lab change, so a preview shows the
+    // newest answered drill card instead.
+    { id: 'n06-drill', piece: 22, write: true, cloud: true, say: S('Next is a drill. A script makes a throwaway account and raises one test incident about it. Nothing was stolen.'),
+      do: [{ do: 'drill.ensure' }, { do: 'require', check: 'drillPending' }, { do: 'teams.guard', phase: 'before' }, { do: 'web.open', ctx: 'staff', url: SOC_CHANNEL, settle: 12000 }, { do: 'teams.guard', phase: 'after' }],
+      standIn: [{ do: 'web.show', url: DRILLEV('01-drill-card-contain.png') }],
+      previewSay: S('Next is a drill. A script makes a throwaway account and raises one test incident about it. This is the card from an earlier drill, on November fifth. Nothing was stolen.') },
+    { id: 'n06-contain', piece: 22, write: true, cloud: true,
+      say: S('The alert goes to the security team in Teams. The playbook never acts on its own. A person must press Contain, because a wrong lockout of a clinician hurts patient care.'),
+      hand: 'Press "Contain (revoke + disable)" on the card.',
+      do: [{ do: 'web.highlight', ctx: 'staff', target: [{ css: 'button', hasText: /^Contain \(revoke \+ disable\)$/, last: true }, { role: 'button', name: /^Contain \(revoke \+ disable\)$/ }], tag: 'Nothing happens until someone says yes' }],
+      wait: { check: 'drillContained', waiting: 'Waiting for your Contain on the card (still recording)', ready: 'Drill account switched off' },
+      previewSay: S('The alert goes to the security team in Teams. The playbook never acts on its own. A person must press Contain, because a wrong lockout of a clinician hurts patient care. A preview presses nothing.'),
+      standIn: [{ do: 'web.show', url: DRILLEV('01-drill-card-contain.png') }] },
+    { id: 'n06-contained', piece: 22, needs: 'drill', cloud: true,
+      say: S('Approved. The drill account is signed out everywhere and switched off. The decision is written on the incident and on the ServiceNow ticket.'),
+      do: [{ do: 'require', check: 'drillContained' }, { do: 'web.highlight', ctx: 'staff', target: (x) => [...(x.drill?.cardMark ? [{ css: `[data-ck-decided="${x.drill.cardMark}"] div`, hasText: /^Decision recorded/, last: true }] : []), { css: 'div', hasText: /^Decision recorded/, last: true }], tag: 'Done, with a name on it' }],
+      previewSay: S('In an earlier drill, a person approved. The drill account was signed out everywhere and switched off, and the decision was written on the incident and on the ServiceNow ticket.'),
+      standIn: [{ do: 'web.show', url: DRILLEV('02-decision-recorded.png') }] },
+    { id: 'n22-playbook', piece: 22, say: S('The playbook is code too. After the approval, it revokes the sign-in sessions and marks the user as compromised.'),
+      do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: CONTAIN, line: lineOf(CONTAIN, /"Revoke_sessions": \{/), endLine: lineOf(CONTAIN, /"Confirm_compromised": \{/) + 3, highlight: true }] },
+    { id: 'n22-disable', piece: 22, say: S('Then it disables the account. An account that comes from Active Directory gets a flag for a person instead, because Entra cannot disable it.'),
+      do: [{ do: 'code.highlight', file: CONTAIN, line: lineOf(CONTAIN, /"Disable_user": \{/), endLine: lineOf(CONTAIN, /"Disable_user": \{/) + 4 }] },
+    { id: 'n22-protected', piece: 22, say: S('The playbook refuses a protected account, such as an emergency account. It reports that to a person and changes nothing.'),
+      do: [{ do: 'code.file', file: CONTAIN, line: lineOf(CONTAIN, /"Filter_protected_prefixes": \{/), endLine: lineOf(CONTAIN, /"Filter_protected_prefixes": \{/) + 10, highlight: true }] },
   ];
 }

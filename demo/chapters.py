@@ -83,10 +83,10 @@ _ROWS = [
      "The same rules, in the Splunk search language, run on the same tenant logs.",
      "N07-the-second-camera", "1:12", False,
      "The SPL search next to its KQL twin, the result in Splunk.", "E59, E61, E113"),
-    (4, "Contain a compromised account", "A person approves in Teams. A playbook contains the account.",
-     "A Sentinel incident asks a named approver in Teams. After the approval, a playbook contains the account.",
+    (4, "Contain a compromised account", "A person approves in Teams. A playbook disables the account.",
+     "A Sentinel incident asks a named approver in Teams. After the approval, a playbook revokes the sessions and disables the account.",
      "N22-contain-an-account", None, True,
-     "The incident, the approval card in Teams, the playbook run, the state of the account.", "E40"),
+     "The approval card in Teams, the decision on the card, the playbook code: revoke, mark, disable.", "E40, E41"),
     # ---- Platform as code
     (5, "Change access with code", "A Terraform change goes from commit to pull request to plan.",
      "A Terraform change moves AWS access from nurses to cloud engineers, from commit to pull request to plan.",
