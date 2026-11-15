@@ -79,7 +79,19 @@ def plan():
     ]
     o += [f"- {c['n']}. {c['title']} (`{c['clip']}`)" for c in first]
     o += [
-        "", "## Sequence of work", "",
+        "", "## Rename the repo before you record", "",
+        "The new name is `Contoso-Health-Identity-Lab`. The clips show the repo name, so rename first.",
+        "The pipeline signs in to Azure with the repo name in its identity. A rename with no other change",
+        "stops the plan, apply, drift, evidence and HR workflows. Do these steps in one session on the Mac.", "",
+        "1. In `lab/terraform/envs/bootstrap/terraform.tfvars`, set `github_repo = \"Contoso-Health-Identity-Lab\"`.",
+        "2. Rename the repo: `gh repo rename Contoso-Health-Identity-Lab -R ChromeData/contoso-health-identity-lab`.",
+        "3. Apply the bootstrap at once: `terraform -chdir=lab/terraform/envs/bootstrap apply`. This gives the pipeline identities the new name.",
+        "4. Do the same for an AWS role that trusts GitHub, if `lab/terraform/aws` has one.",
+        "5. Start the plan workflow. Make sure it signs in.",
+        "6. Change the name in the code and the docs with one pull request. 51 files contain it.",
+        "7. Keep the folder name `~/contoso-health-identity-lab` on the Mac. The recorder uses that path.", "",
+        "If a workflow cannot sign in, rename the repo back. The old name works again at once.", "",
+        "## Sequence of work", "",
         "All commands run in `recording/` on the Mac.", "",
         "1. Get the branch: `git pull`, then `npm install`.",
         "2. Check the steps: `npm test`.",
