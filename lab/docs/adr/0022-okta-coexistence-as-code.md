@@ -94,4 +94,4 @@ Results: fill after running. Nothing has been measured.
   "IdP discovery routing rules" (verify: current field names in the
   `okta_idp_oidc` and `okta_policy_rule_idp_discovery` resources).
 - Microsoft Learn, "Tutorial: Migrate Okta federation to Microsoft Entra
-  authentication" (cited in the lab map's Apps station).
+  authentication".

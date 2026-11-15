@@ -106,7 +106,7 @@ Monitor Logs Ingestion API · CISA ScubaGear · Microsoft Zero Trust Assessment
 
 1. A new stand-in isn't merged without a row here, and every video that
    shows it working says the line in its row, word for word. A stand-in that
-   appears only as a box on the lab map is covered by the box's caption,
+   appears only as a row in the lab guide is covered by the note in its row,
    which names what it replaces. If no video shows it, the row says "not
    filmed yet" and its line waits until one does; if it is only ever a
    rehearsal fixture, it moves to "Off camera only". When a video's line

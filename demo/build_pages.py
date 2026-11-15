@@ -1,4 +1,4 @@
-"""Write the root README and demo/RECORDING-PLAN.md from demo/chapters.py.
+"""Write the root README, the chapter pages (demo/chapters/) and demo/RECORDING-PLAN.md from demo/chapters.py.
 
     python demo/build_pages.py
 
@@ -28,31 +28,54 @@ def readme():
         "Microsoft Entra tenant, and all of it is code. The clips follow one new employee, Sam Rivera, from",
         "hire to departure. **In the first measured leaver run, for nurse Dana Okafor, Active Directory",
         "disabled the account in 7 seconds and Entra in less than 3 minutes.**", "",
-        f"The {len(CHAPTERS)} chapters below show the lab in operation. Each loop is a silent clip at a higher speed.",
+        f"The {len(CHAPTERS)} chapters show the lab in operation. Each chapter has its own page with a short clip.",
         "", "| Part | Chapter | Summary |", "|---|---|---|",
     ]
     for c in CHAPTERS:
-        o.append(f"| {c['group']} | [{c['n']}. {c['title']}](#{c['anchor']}) | {c['summary']} |")
+        o.append(f"| {c['group']} | [{c['n']}. {c['title']}](demo/chapters/{c['loop']}.md) | {c['summary']} |")
     o += ["", "Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · "
           "[threat model](lab/docs/threat-model.md) · [risk register](lab/docs/risk-register.md) · "
-          "[field notes](lab/docs/field-notes.md)"]
-    for g in GROUPS:
-        o += ["", f"## {g}"]
-        for c in (x for x in CHAPTERS if x["group"] == g):
-            o += ["", f"### {c['n']}. {c['title']}", "", f"**{c['line']}**", ""]
-            loop, clip = f"demo/loops/{c['loop']}.webp", f"demo/videos/{c['clip']}.mp4"
-            if has(loop):
-                o += [f"![{c['title']}]({loop})"]
-                if has(clip) and c["length"]:
-                    o += ["", f"[Full clip, {c['length']}]({clip})"]
-            else:
-                o += ["The clip for this chapter comes later."]
-    o += ["", "---", "",
+          "[field notes](lab/docs/field-notes.md)",
+          "", "---", "",
           "Results, limits, and evidence: [`lab/docs/platform-details.md`](lab/docs/platform-details.md).",
           "How the clips are made: [`demo/README.md`](demo/README.md).", ""]
     with open(os.path.join(ROOT, "README.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(o))
+    chapters()
     return clips
+
+
+def chapters():
+    """One page for each chapter: demo/chapters/<loop>.md. The README table links to them."""
+    out = os.path.join(HERE, "chapters")
+    os.makedirs(out, exist_ok=True)
+    keep = set()
+    for k, c in enumerate(CHAPTERS):
+        o = [f"# {c['n']}. {c['title']}", "", f"{c['group']} · [Contoso Health Identity Lab](../../README.md)", "",
+             f"**{c['line']}**", ""]
+        loop, clip = f"demo/loops/{c['loop']}.webp", f"demo/videos/{c['clip']}.mp4"
+        if has(loop):
+            o += [f"![{c['title']}](../loops/{c['loop']}.webp)"]
+            if has(clip) and c["length"]:
+                o += ["", f"[Full clip, {c['length']}](../videos/{c['clip']}.mp4)"]
+        else:
+            o += ["The clip for this chapter comes later."]
+        nav = []
+        if k > 0:
+            p = CHAPTERS[k - 1]
+            nav.append(f"[← {p['n']}. {p['title']}]({p['loop']}.md)")
+        nav.append("[All chapters](../../README.md)")
+        if k + 1 < len(CHAPTERS):
+            p = CHAPTERS[k + 1]
+            nav.append(f"[{p['n']}. {p['title']} →]({p['loop']}.md)")
+        o += ["", "---", "", " · ".join(nav), ""]
+        name = f"{c['loop']}.md"
+        keep.add(name)
+        with open(os.path.join(out, name), "w", encoding="utf-8", newline="\n") as f:
+            f.write("\n".join(o))
+    for name in os.listdir(out):
+        if name.endswith(".md") and name not in keep:
+            os.remove(os.path.join(out, name))
 
 
 def plan():

@@ -66,7 +66,10 @@ const BASE = `http://localhost:${PORT}`;
 const CARD_FILE = path.join(ROOT, 'ui', 'card.html');
 const TYPES = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.webm': 'video/webm', '.mp4': 'video/mp4',
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.txt': 'text/plain; charset=utf-8', '.woff2': 'font/woff2' };
-const MAP_PAGES = { '/map': 'lab-map.html', '/map/v24': 'v24.html' };
+const MAP_PAGES = { '/map': 'lab-map.html' };
+// The lab guide (guide/index.html): the plain document the clips show between
+// the live screens. It took the place of the lab map and the setup map.
+const GUIDE_FILES = { '/guide': ['index.html', '.html'], '/guide/guide-data.js': ['guide-data.js', '.js'] };
 const under = (file, dir) => lower(path.resolve(file)).toLowerCase().startsWith(lower(path.resolve(dir)).toLowerCase() + path.sep);
 function toLocal(u) {
   if (typeof u !== 'string' || !u.startsWith('file://')) return u;
@@ -97,6 +100,7 @@ const server = http.createServer((req, res) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); res.end(); return; }
   const p = url.pathname.replace(/\/$/, '');
   if (MAP_PAGES[p]) return send(path.join(ROOT, 'map', MAP_PAGES[p]), TYPES['.html']);
+  if (GUIDE_FILES[p]) return send(path.join(ROOT, 'guide', GUIDE_FILES[p][0]), TYPES[GUIDE_FILES[p][1]]);
   if (p === '/card') return send(CARD_FILE, TYPES['.html']);
   if (p.startsWith('/shots/')) {
     let rel; try { rel = decodeURIComponent(p.slice(7)); } catch { res.writeHead(400); res.end(); return; }
@@ -108,7 +112,7 @@ const server = http.createServer((req, res) => {
 });
 await new Promise((resolve, reject) => { server.once('error', reject); server.listen(PORT, '127.0.0.1', resolve); });
 Browser.MAP_URL = `${BASE}/map`;
-const MAP_V24 = `${BASE}/map/v24?video`;
+const MAP_V24 = `${BASE}/guide/?video`;   // the lab guide (the name stays from the map it replaced)
 
 // ---- the hidden browser ---------------------------------------------------------
 class HiddenBrowser extends Browser {

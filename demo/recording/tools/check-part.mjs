@@ -5,7 +5,7 @@
 //   - files (code.file / code.highlight / code.diff, captured screens, videos):
 //     they exist, the lines exist, and VS Code files sit inside the window's
 //     workspace (the bridge refuses others);
-//   - map targets: each map.focus target resolves on cockpit/map/v24.html;
+//   - guide targets: each map.focus target resolves on cockpit/guide/index.html;
 //   - links: every fixed http(s) page loads in the signed-in recording
 //     profile (headless), with no sign-in page and no "You don't have access";
 //     links built during the run (the PR, an incident) are listed as RUNTIME;
@@ -79,10 +79,11 @@ if (mapTargets.length || links.length) {
   if (ctx) {
     const p = await ctx.newPage();
     if (mapTargets.length) {
-      await p.goto(`file://${path.join(ROOT, 'map', 'v24.html')}?video`); await p.waitForFunction(() => typeof window.__mapFocus === 'function', null, { timeout: 15000 }); await p.waitForTimeout(1500);
+      // The lab guide (guide/index.html) took the place of the v24 map on 2026-11-15; the target names are the same.
+      await p.goto(`file://${path.join(ROOT, 'guide', 'index.html')}?video`); await p.waitForFunction(() => typeof window.__mapFocus === 'function', null, { timeout: 15000 }); await p.waitForTimeout(500);
       for (const m of mapTargets) {
-        const r = await p.evaluate(async (t) => { try { await window.__mapFocus(t); const z = window.__lab.cam.z; return { ok: true, z }; } catch (e) { return { ok: false, e: String(e.message || e) }; } }, m.t);
-        add(m.id, `map ${m.t}`, r.ok, r.ok ? `zoom ${r.z.toFixed(2)}` : r.e);
+        const r = await p.evaluate(async (t) => { try { await window.__mapFocus(t); return { ok: true }; } catch (e) { return { ok: false, e: String(e.message || e) }; } }, m.t);
+        add(m.id, `guide ${m.t}`, r.ok, r.ok ? 'found' : r.e);
       }
     }
     for (const l of links) {
