@@ -292,7 +292,10 @@ const server = http.createServer(async (req, res) => {
   }
   const cookieKey = /(?:^|;\s*)ck=([0-9a-f]+)/.exec(req.headers.cookie || '')?.[1];
   const k = url.searchParams.get('k') || cookieKey;
-  const keyOk = k && k.length === KEY.length && crypto.timingSafeEqual(Buffer.from(k), Buffer.from(KEY));
+  // Compare byte lengths, not character counts: timingSafeEqual throws on
+  // buffers of different sizes (a 12-character key with a non-ASCII letter).
+  const kb = Buffer.from(k || ''), KB = Buffer.from(KEY);
+  const keyOk = kb.length === KB.length && crypto.timingSafeEqual(kb, KB);
   if (!keyOk) { res.writeHead(403, { 'content-type': 'text/plain' }); res.end('Open the link the cockpit printed (it has the pairing key).'); return; }
   if (req.method === 'GET' && url.pathname === '/') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'set-cookie': `ck=${KEY}; Path=/; SameSite=Strict; Max-Age=2592000`, 'cache-control': 'no-store' });
@@ -508,15 +511,23 @@ async function watchRun() {
     for (const end = from + dur; Date.now() < end;) { await ck.stageGuard(); await sleep(100); }
     if (voice && voice.exitCode === null) await new Promise((r) => voice.on('exit', r));
     lines[lines.length - 1].end = await ck.rec.position().catch(() => null);
+    // A step that failed (a missing captured image, a page that never loaded,
+    // a highlight not found) leaves a clip whose caption describes a screen
+    // the tool never reached: marked here, reported at the end.
+    if (((ck.failedSteps || {})[s.piece] || []).includes(s.id)) { lines[lines.length - 1].failed = ck.error || true; tell(`watch: step ${s.id} FAILED: part ${s.piece} must be retaken${ck.error ? ` (${String(ck.error).split('\n')[0]})` : ''}`); }
     await sleep(120);
   }
   if (ck.rec.dir) try { fs.writeFileSync(path.join(ck.rec.dir, 'watch-lines.json'), JSON.stringify(lines, null, 1)); } catch {}
   ck.stopStageWatch();
   card?.stop();
-  log('watch: finished');
+  const failedParts = Object.entries(ck.failedSteps || {}).filter(([, ids]) => ids.length);
+  if (failedParts.length) {
+    tell(`watch: finished with FAILED steps: do not caption or publish these parts, retake them:`);
+    for (const [n, ids] of failedParts) tell(`  - part ${n}: ${ids.join(', ')}`);
+  } else log('watch: finished');
   await ck.close();
   curtainDown();
-  process.exit(0);
+  process.exit(failedParts.length ? 1 : 0);
 }
 
 // --preview autopilot: refuses to start until every sign-in and OBS are

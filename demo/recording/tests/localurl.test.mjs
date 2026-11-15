@@ -16,7 +16,13 @@ test('a card is /card with its hash', () => {
 });
 
 test('a captured screen is /shots/... and resolves back to its file', () => {
-  const dir = fs.mkdtempSync(path.join(DEMO, 'captures', 'zz-localurl-test-'));
+  // A fresh checkout has no ~/contoso-demo/captures yet: make the parents, and
+  // afterwards take away only what this test made.
+  const captures = path.join(DEMO, 'captures');
+  const made = [];   // the folders that were missing, deepest first
+  for (let d = captures; !fs.existsSync(d); d = path.dirname(d)) made.push(d);
+  fs.mkdirSync(captures, { recursive: true });
+  const dir = fs.mkdtempSync(path.join(captures, 'zz-localurl-test-'));
   try {
     const f = path.join(dir, 'a shot.png');
     fs.writeFileSync(f, 'x');
@@ -29,7 +35,11 @@ test('a captured screen is /shots/... and resolves back to its file', () => {
     assert.equal(resolveLocal(p.replace('a%20shot.png', '.secret.png')), null);
     assert.equal(resolveLocal(p.replace('a%20shot.png', '..%2F..%2Fcockpit%2F.state%2Fui-key')), null);
     assert.equal(resolveLocal('/shots/nothing/registered.png'), null);
-  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    // Only the folders this test created, and only while they are empty.
+    for (const d of made) { try { fs.rmdirSync(d); } catch { break; } }
+  }
 });
 
 test('files in hidden folders or outside ~/contoso-demo stay as they are (and are refused by web.show)', () => {

@@ -120,8 +120,9 @@ export class Recorder {
       this.piece = { ...p, file: path.join(this.dir, base + '.mkv'), startedAt: Date.now() };
     } else {
       const file = path.join(this.dir, base + '.mov');
-      // -v video, -C show the cursor, -g record the default microphone, -x no shutter sound.
-      this.proc = spawn('screencapture', ['-v', '-C', '-g', '-x', file], { stdio: 'ignore' });
+      // -v video, -C show the cursor, -g record the default microphone (left out
+      // for a silent take: no room audio in the file), -x no shutter sound.
+      this.proc = spawn('screencapture', ['-v', '-C', ...(this.silent ? [] : ['-g']), '-x', file], { stdio: 'ignore' });
       this.piece = { ...p, file, startedAt: Date.now() };
     }
     this.paused = false;

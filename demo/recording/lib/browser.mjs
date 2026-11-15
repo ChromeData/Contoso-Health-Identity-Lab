@@ -18,8 +18,16 @@ import { execFileSync, execFile } from 'node:child_process';
 import { windows } from './winshot.mjs';
 import { localUrl, localBase } from './localurl.mjs';
 
-const req = createRequire(path.join(os.homedir(), 'contoso-health-identity-lab/lab/setup/signup-assist/package.json'));
-export const { chromium } = req('playwright');
+// Playwright is this package's own dependency (`npm install` here). A checkout
+// that only ever installed it under lab/setup/signup-assist still works.
+function loadPlaywright() {
+  const places = [import.meta.url, path.join(os.homedir(), 'contoso-health-identity-lab/lab/setup/signup-assist/package.json')];
+  for (const from of places) {
+    try { return createRequire(from)('playwright'); } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e; }
+  }
+  throw new Error('Playwright is not installed: run `npm install` in demo/recording');
+}
+export const { chromium } = loadPlaywright();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // An expert's hand (owner, 2026-11-10 #2: still human, but brisk).
 export const HAND = +(process.env.COCKPIT_HAND_SPEED || 1.3);

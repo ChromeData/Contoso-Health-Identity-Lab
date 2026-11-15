@@ -240,14 +240,17 @@ export async function v2Worktrees(root, log = console.log) {
   fs.mkdirSync(base, { recursive: true });
   for (const [k, br] of Object.entries(V2_BRANCHES)) {
     const dir = path.join(base, k);
-    try {
-      await L.sh('git', ['-C', L.LAB, 'fetch', '-q', 'origin', `+refs/heads/${br}:refs/remotes/origin/${br}`]);
-      if (!fs.existsSync(path.join(dir, '.git'))) await L.sh('git', ['-C', L.LAB, 'worktree', 'add', '-q', '--detach', dir, `origin/${br}`]);
-      else await L.sh('git', ['-C', dir, 'checkout', '-q', '--detach', `origin/${br}`]);
-    } catch (e) {
-      // Merged and deleted: main has it now.
+    // The copy always lives at .v2/<name>: the VS Code workspace lists those
+    // folders only, and a file anywhere else is refused as outside it.
+    const place = async (ref) => {
+      await L.sh('git', ['-C', L.LAB, 'fetch', '-q', 'origin', `+refs/heads/${ref}:refs/remotes/origin/${ref}`]);
+      if (!fs.existsSync(path.join(dir, '.git'))) await L.sh('git', ['-C', L.LAB, 'worktree', 'add', '-q', '--detach', dir, `origin/${ref}`]);
+      else await L.sh('git', ['-C', dir, 'checkout', '-q', '--detach', `origin/${ref}`]);
+    };
+    try { await place(br); } catch (e) {
+      // Merged and deleted: main has it now, checked out in the same folder.
       log(`v2: ${br}: ${e.message.split('\n')[0]}; using main`);
-      out[k] = await labMain(root); continue;
+      await place('main');
     }
     out[k] = dir;
   }

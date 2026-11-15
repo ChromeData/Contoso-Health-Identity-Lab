@@ -19,6 +19,7 @@
     "captions": "python3 tools/caption.py"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.8.1"
+    "@huggingface/transformers": "^3.8.1",
+    "playwright": "^1.50.0"
   }
 }

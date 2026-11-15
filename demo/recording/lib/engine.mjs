@@ -118,6 +118,15 @@ export class Cockpit {
   }
   // The camera is run by the cockpit (pauses, stage checks), not a presenter.
   get unattended() { return this.preview || this.proof || this.watch; }
+  // A step that changes the lab is not done; its stand-in shows instead.
+  // --preview: always (a labelled banner when the step has no stand-in).
+  // A recorded dry run (--watch, the clips): only where the step has a captured
+  // stand-in screen, so the picture matches its caption; a step without one
+  // runs its read-only `do` as before. Nothing else of --preview is switched on.
+  usesStandIn(s) {
+    if (!(s.cloud || (this.v2 && s.previewStandIn))) return false;
+    return !!(this.preview || (this.watch && this.mode === 'dry' && s.standIn));
+  }
 
   // ---- setup ------------------------------------------------------------------
   async init() {
@@ -170,7 +179,7 @@ export class Cockpit {
     for (const b of [this.browser, this.staffBrowser, this.awsBrowser]) b.human = this.human;
     // OBS shows the system pointer, except with the old drawn one (--mouse dom),
     // so a take never has two pointers.
-    this.rec = new Recorder({ cursor: this.human.mode !== 'dom', root: path.join(DEMO, 'recordings', ...(this.mode === 'live' ? [] : (this.preview || this.proof) ? ['preview'] : ['practice'])), dir: this.outDir, display: this.display, log: this.log, enabled: this.recordWanted, silent: this.preview || this.proof });
+    this.rec = new Recorder({ cursor: this.human.mode !== 'dom', root: path.join(DEMO, 'recordings', ...(this.mode === 'live' ? [] : (this.preview || this.proof) ? ['preview'] : ['practice'])), dir: this.outDir, display: this.display, log: this.log, enabled: this.recordWanted, silent: this.preview || this.proof || this.silent });
     await this.rec.init();
     this.list = this.buildList();
     if (this.resumeFrom) {
@@ -411,7 +420,7 @@ export class Cockpit {
   async prefetchStep(k, { reload = false } = {}) {
     if (!this.prefetchOn || !this.human?.real) return;
     const s = this.list?.[k]; if (!s) return;
-    const standIn = this.preview && (s.cloud || (this.v2 && s.previewStandIn));
+    const standIn = this.usesStandIn(s);
     const acts = standIn ? (s.standIn || []) : s.do || [];
     for (const a of acts) {
       try {
@@ -694,7 +703,7 @@ export class Cockpit {
       [/\.service-now\.com$/, 'ServiceNow'], [/^(127\.0\.0\.1|localhost):8000$/, 'Splunk'], [/^(127\.0\.0\.1|localhost):8585$/, 'OrangeHRM'],
       [/^myapps\.microsoft\.com$/, 'My Apps'], [/^teams\.microsoft\.com$/, 'Teams'], [/^github\.com$/, 'GitHub']];
     for (const s of steps) {
-      const standIn = this.preview && (s.cloud || (this.v2 && s.previewStandIn));
+      const standIn = this.usesStandIn(s);
       const acts = standIn ? (s.standIn || []) : [...(s.do || []), ...(this.preview ? s.preview || [] : [])];
       for (const a of acts) {
         if (a.do === 'snow.adminList') need.add('ServiceNow');
@@ -740,8 +749,8 @@ export class Cockpit {
     // the step's own actions, labelled on screen.
     // --v2 --preview: a step that changes the lab is never done; its
     // stand-in (read-only, labelled PREVIEW on screen) runs instead.
-    const standIn = this.preview && (s.cloud || (this.v2 && s.previewStandIn));
-    if (standIn) this.log(`[${s.id}] PREVIEW: not done (it changes the lab): showing its stand-in`);
+    const standIn = this.usesStandIn(s);
+    if (standIn) this.log(`[${s.id}] ${this.preview ? 'PREVIEW' : 'DRY RUN'}: not done (it changes the lab): showing its stand-in`);
     const acts = standIn ? (s.standIn || [{ do: 'banner', text: `PREVIEW · not done: ${s.id} changes the lab` }]) : this.preview && s.preview && !viewOnly ? [...s.do, ...s.preview] : s.do;
     // Preview 2 review: no silent footage longer than ~10 s. Unattended
     // (--preview, or a proof clip), the camera stops rolling once a step's
