@@ -6,7 +6,7 @@
 // GitHub is the owner's own account: the recorder has no login for it and
 // never types one. Signed out, GitHub shows a public repo but hides the job
 // summaries, the job logs and the "Run workflow" button, and the steps that
-// point at them fail (N01, N09, N14, N16).
+// point at them fail (N01, N09).
 //
 // This opens ONE small browser window on the recorder's own profile. You
 // sign in there the way you normally do. The window closes by itself when

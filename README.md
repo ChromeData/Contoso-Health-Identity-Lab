@@ -209,7 +209,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Checks on the code](demo/loops/20-checks-on-the-code.webp)
 
-[Full clip, 1:29](demo/videos/N16-code-checks.mp4)
+[Full clip, 0:50](demo/videos/N16-code-checks.mp4)
 
 ### 21. The lab in VS Code and GitHub
 
@@ -235,7 +235,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Move the clinic from Okta](demo/loops/23-move-the-clinic-from-okta.webp)
 
-[Full clip, 1:48](demo/videos/N14-okta.mp4)
+[Full clip, 1:21](demo/videos/N14-okta.mp4)
 
 ---
 

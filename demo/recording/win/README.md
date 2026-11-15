@@ -84,20 +84,56 @@ To run the steps with no recording, add `--check`.
 
 GitHub is your own account. The recorder has no login for it.
 With no sign-in, GitHub hides the job summaries, the job logs and the **Run workflow** button.
-The steps that show them fail (parts N01, N09, N14 and N16).
+The steps that show them fail (parts N01 and N09).
 
 1. Make sure that no recording runs.
 2. Run `npm run win:github`.
 3. Sign in to GitHub in the small window that opens.
-4. Wait. The window closes when you are signed in.
+4. Wait. The window closes when you are signed in. It waits 10 minutes. For a longer wait, run `node win/github-signin.mjs --wait 45`.
+
+## Splunk (part N07)
+
+Part N07 shows the local Splunk. On a PC, Splunk runs in WSL (Ubuntu). No window opens.
+Steps 1 to 5 and the first command of step 7 ran on a PC on 2026-11-15. Steps 6, 8 and 9 and the second command of step 7 are not tested on a PC yet.
+
+1. Install Docker in WSL: `sudo apt-get install -y docker.io docker-compose-v2`
+2. Clone the lab in WSL. A clone in WSL has Unix line ends, which the shell scripts need:
+
+   ```
+   sudo git clone --depth 1 https://github.com/ChromeData/contoso-health-identity-lab.git /opt/contoso-health-identity-lab
+   ```
+
+3. Link the Splunk settings file to the Windows repo. The sign-in tool reads the password there:
+
+   ```
+   sudo ln -sfn /mnt/c/Users/<you>/labs/contoso-health-identity-lab/lab/splunk/.env /opt/contoso-health-identity-lab/lab/splunk/.env
+   ```
+
+4. In WSL, go to `/opt/contoso-health-identity-lab/lab/splunk` and run `sudo ./splunk-up.sh`. It stops at the license step.
+5. Read the Splunk General Terms. If you accept them, set the two license lines in `lab/splunk/.env`. This is your decision. No script does it.
+6. Run `sudo ./splunk-up.sh` again. The first start takes some minutes.
+7. Copy the tenant's audit log into Splunk. Run the first command in Windows and the second in WSL:
+
+   ```
+   node lab/splunk/query-as-operator.mjs AuditLogs P14D lab/splunk/.state/AuditLogs.json
+   sudo ./ingest-from-loganalytics.sh -T AuditLogs --input-json /mnt/c/Users/<you>/labs/contoso-health-identity-lab/lab/splunk/.state/AuditLogs.json
+   ```
+
+8. Delete `lab/splunk/.state/AuditLogs.json`. It holds real log rows.
+9. Record: `npm run win:clips -- --part 7`
+
+The Splunk rule looks back one hour. Each recording session activates the read-only presenter role, and that activation is a row the rule finds.
+Do step 7 again 15 minutes after a recording session starts, then record part N07 in the same hour.
 
 ## Limits
 
-- The staff window, the AWS window, Teams, Splunk and OrangeHRM are not in the recorder yet. A step that has a captured screen shows that screen. A step with no captured screen fails (part N07).
+- The staff window, the AWS window, Teams and OrangeHRM are not in the recorder. A step that has a captured screen shows that screen.
+- Each run is a preview. A step that has a preview line (`previewSay` in `steps.mjs`) shows that line, because the screen is from an earlier run.
 - The private window signs in one lab person (part N05: `adm-raj.patel`, with the passkey). It shows the page. It does not activate a role.
 - Steps that need a live check of the lab (`require`) are not checked.
 - The clip shows no browser tabs and no address bar. A hidden browser has none.
 - The check results in `tour/out` come from the last run of `tools/tour-extra-checks.sh` on the Mac. That script does not run on Windows.
+- The browser profile can have only one user at a time. To record while the profile is in use, add `--profile <other folder>`. The other profile has no GitHub sign-in.
 
 ## Stop the hidden VS Code
 

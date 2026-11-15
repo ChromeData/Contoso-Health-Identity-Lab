@@ -54,10 +54,20 @@
   "length": "1:25",
   "steps": 7
  },
+ "N14-okta": {
+  "date": "2026-11-15",
+  "length": "1:21",
+  "steps": 7
+ },
  "N15-aws-server-access-and-azure-least-privilege": {
   "date": "2026-11-15",
   "length": "1:06",
   "steps": 5
+ },
+ "N16-code-checks": {
+  "date": "2026-11-15",
+  "length": "0:50",
+  "steps": 4
  },
  "N17-close-vscode-github": {
   "date": "2026-11-15",

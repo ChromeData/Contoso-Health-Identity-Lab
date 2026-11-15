@@ -24,10 +24,10 @@ with **Yes** in the trial column before that date. Those features stop when the 
 | 17 | Detection in Splunk | `N07-the-second-camera.mp4` | Record again | No | The SPL search next to its KQL twin, the result in Splunk. | E59, E61, E113 |
 | 18 | Contain a compromised account | `N22-contain-an-account.mp4` | Recorded 2026-11-15 | Yes | The approval card in Teams, the decision on the card, the playbook code: revoke, mark, disable. | E40, E41 |
 | 19 | Change access with code | `N01-the-blueprints.mp4` | Record again | No | The edit in VS Code, the commit, the pull request, the plan comment. | E01, E02 |
-| 20 | Checks on the code | `N16-code-checks.mp4` | Record again | No | The RBAC check, the scanner self-test on a bad file, the nightly drift check. | - |
+| 20 | Checks on the code | `N16-code-checks.mp4` | Recorded 2026-11-15 | No | The RBAC check, the scanner self-test on a bad file, the nightly drift check. | - |
 | 21 | The lab in VS Code and GitHub | `N17-close-vscode-github.mp4` | Recorded 2026-11-15 | No | The repo in VS Code, the Actions runs, the pull request list, the apply approval. | - |
 | 22 | Move an app from AD FS | `N13-adfs-to-entra.mp4` | Recorded 2026-11-15 | No | The AD FS app, the Entra app as code, the test result. | - |
-| 23 | Move the clinic from Okta | `N14-okta.mp4` | Record again | No | The three apps in Okta, the tracker, the first app that trusts Entra, the rollback time. | E58, E184 |
+| 23 | Move the clinic from Okta | `N14-okta.mp4` | Recorded 2026-11-15 | No | The three apps in Okta, the tracker, the first app that trusts Entra, the rollback time. | E58, E184 |
 
 ## Record these first
 
