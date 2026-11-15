@@ -78,6 +78,7 @@
 // =============================================================================
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
+import { WIN, winRead, winWrite, winDelete, winRest } from './store.mjs';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -220,6 +221,7 @@ export function proofVerdict({ signCountBefore, signCountAfter, sawLogin, landed
 // Read: value into this process only. Null = no such item ("not found" and
 // "could not read" are told apart by the exit code: 44 is errSecItemNotFound).
 export function keychainRead(service) {
+  if (WIN) return winRead(service);   // Windows Credential Manager (store.mjs)
   try {
     return execFileSync('security', ['find-generic-password', '-s', service, '-w'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).replace(/\n$/, '');
   } catch (e) {
@@ -232,10 +234,12 @@ export function keychainRead(service) {
 export function keychainWrite(service, account, label, secret) {
   if (!secret || /[\s"'\\]/.test(secret)) throw new Error('keychainWrite: the value must be one token without quotes, backslashes or spaces');
   if (/[\s"'\\]/.test(service + account) || /["'\\]/.test(label)) throw new Error('keychainWrite: bad service/account/label');
+  if (WIN) return winWrite(service, account, secret);
   execFileSync('security', ['-i'], { input: `add-generic-password -U -s ${service} -a ${account} -l "${label}" -w ${secret}\n`, stdio: ['pipe', 'ignore', 'pipe'] });
   if (keychainRead(service) !== secret) throw new Error(`Keychain write to ${service} did not read back`);
 }
 function keychainDelete(service) {
+  if (WIN) { winDelete(service); return; }
   try { execFileSync('security', ['delete-generic-password', '-s', service], { stdio: 'ignore' }); } catch (e) { if (e.status !== 44) throw new Error(`could not delete Keychain item ${service}`); }
 }
 // A key being registered (or replacing the current one) lives in the
@@ -255,7 +259,7 @@ export function graph(method, url, body) {
   if (body !== undefined) { args.push('--headers', 'Content-Type=application/json', '--body', '@/dev/stdin'); input = JSON.stringify(body); }
   let out;
   try {
-    out = execFileSync(OP, args, { input, encoding: 'utf8', stdio: [input === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'], maxBuffer: 32 << 20 });
+    out = WIN ? winRest(method, full, body) : execFileSync(OP, args, { input, encoding: 'utf8', stdio: [input === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'], maxBuffer: 32 << 20 });
   } catch (e) {
     throw new Error(`Graph ${method} ${full.replace(/\?.*$/, '')} failed: ${String(e.stderr || e.message).trim().slice(0, 400)}`);
   }
