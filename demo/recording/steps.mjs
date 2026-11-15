@@ -681,7 +681,11 @@ export function stepsV2(c) {
       wait: { check: 'applyDone', waiting: 'Waiting for your approval, then building (about 4 minutes)', ready: 'Built: the change is live', onReady: [{ do: 'web.open', url: (x) => x.applyRun.url }] },
       standIn: [{ do: 'web.open', url: (x) => x.issue.url }] },
     { id: 'n01-applied', piece: 1, say: S('Approved and built. The run says what changed.'),
-      do: [{ do: 'web.open', url: (x) => x.applyRun.url }, { do: 'web.highlight', target: { re: 'Applied:' }, tag: 'What changed' }] },
+      do: [{ do: 'web.open', url: (x) => x.applyRun.url }, { do: 'web.highlight', target: { re: 'Applied:' }, tag: 'What changed' }],
+      // signedOut (win/record.mjs only): GitHub hides a run's summary from a
+      // reader who is not signed in. The hidden recorder then shows the run's
+      // own log (gh CLI, read only): here, the apply run of this change.
+      signedOut: [{ do: 'gh.log', run: (x) => (x.changeRun || x.applyRun).id, name: 'terraform-apply', job: 'terraform apply', from: '^Apply complete!' }] },
     { id: 'n01-entra', piece: 1, cloud: true, say: S('In Entra, this list is where the new package appears once it is built, next to the nurse package without AWS.'),
       do: [{ do: 'web.open', url: PKGS, settle: 6000 }, { do: 'web.highlight', target: { text: 'IT - Cloud Engineering Apps', row: true }, tag: 'New' }],
       standIn: [{ do: 'web.open', url: PKGS, settle: 6000 }] },
@@ -893,11 +897,15 @@ export function stepsV2(c) {
       previewSay: S("Every step leaves a record. One click runs the evidence workflow. It reads Entra with a read-only identity. A preview does not click it, so an earlier run is shown next."),
       do: [{ do: 'gh.runWorkflow', workflow: 'evidence-pack.yml' }],
       wait: { check: 'evidenceDone', waiting: 'Filing the evidence (a few minutes)', ready: 'Filed', onReady: [{ do: 'web.open', url: (x) => x.evRun.url }] },
-      standIn: [{ do: 'web.open', url: `${GH}/actions/workflows/evidence-pack.yml`, settle: 5000 }, { do: 'web.highlight', target: { re: '^Run workflow$', nth: 0 }, tag: 'One click' }] },
+      standIn: [{ do: 'web.open', url: `${GH}/actions/workflows/evidence-pack.yml`, settle: 5000 }, { do: 'web.highlight', target: { re: '^Run workflow$', nth: 0 }, tag: 'One click' }],
+      // Signed out there is no Run workflow button: the workflow's manual trigger is shown in its file.
+      signedOut: [{ do: 'code.open', ws: c.tourWs }, { do: 'code.closeAll' }, { do: 'code.file', file: `${c.tourLab}/.github/workflows/evidence-pack.yml`, line: lineOf(`${c.tourLab}/.github/workflows/evidence-pack.yml`, /^\s*workflow_dispatch:/), highlight: true }] },
     { id: 'n09-summary', piece: 9, say: S('It files seven records. PIM activations. Live admin assignments. The PIM audit trail. Access review decisions. Sign-in rules. MFA registration. And who holds admin roles.'),
-      do: [{ do: 'web.open', url: (x) => x.evRun.url }, { do: 'web.waitFor', target: { re: '^Evidence pack filed', nth: 0 }, timeout: 300000 }, { do: 'web.highlight', target: { re: '^Evidence pack filed', nth: 0 }, tag: 'Seven records' }] },
+      do: [{ do: 'web.open', url: (x) => x.evRun.url }, { do: 'web.waitFor', target: { re: '^Evidence pack filed', nth: 0 }, timeout: 300000 }, { do: 'web.highlight', target: { re: '^Evidence pack filed', nth: 0 }, tag: 'Seven records' }],
+      signedOut: [{ do: 'gh.log', run: (x) => x.evRun.id, name: 'evidence-pack', from: '^## Evidence pack filed', to: '^\\| Everyone with a powerful role' }] },
     { id: 'n09-hashes', piece: 9, say: S('Each file gets a fingerprint, a hash that changes if one byte changes. Raj\'s activation from part five is in the PIM records.'),
-      do: [{ do: 'web.clickIf', target: { re: 'SHA-?256|fingerprint', nth: 0 } }, { do: 'web.highlight', target: [{ re: 'SHA-?256', nth: 0 }, { re: 'fingerprint', nth: 0 }], tag: 'A fingerprint per file' }] },
+      do: [{ do: 'web.clickIf', target: { re: 'SHA-?256|fingerprint', nth: 0 } }, { do: 'web.highlight', target: [{ re: 'SHA-?256', nth: 0 }, { re: 'fingerprint', nth: 0 }], tag: 'A fingerprint per file' }],
+      signedOut: [{ do: 'gh.log', run: (x) => x.evRun.id, name: 'evidence-pack', from: 'Fingerprints \\(SHA-256\\)', to: '`manifest\\.json`' }] },
     { id: 'n09-store', piece: 9, lineWithAction: true, say: S("Here is the store. It has three folders. The evidence folder holds the packs. The change feed is Azure's own ordered log of every add, change or delete. The logs folder is Azure's older logging; the lab sends its access logs to Log Analytics instead."),
       do: [{ do: 'web.open', url: EVIDENCE, settle: 9000 }, { do: 'web.highlight', target: { text: 'evidence', exact: true, row: true }, tag: 'The packs' }, { do: 'pause', ms: 5000 }, { do: 'web.highlight', target: { text: '$blobchangefeed', exact: true, row: true }, tag: "Azure's ordered change log" }, { do: 'pause', ms: 5000 }, { do: 'web.highlight', target: { text: '$logs', exact: true, row: true }, tag: 'Older logging (unused)' }] },
     // BLOCKER (2026-11-07 dry run): adm-presenter has no blob read on the
@@ -906,7 +914,8 @@ export function stepsV2(c) {
     // container, a lab change), the pack's contents are shown on the run's
     // own summary, which lists what it filed.
     { id: 'n09-pack', piece: 9, say: S('Inside a pack: the records, the fingerprint list, and a summary that maps each record to a control.'),
-      do: [{ do: 'web.open', url: (x) => x.evRun.url, settle: 5000 }, { do: 'web.highlight', target: [{ re: 'SUMMARY\\.md', nth: 0 }, { re: 'SHA256SUMS', nth: 0 }, { re: '^Evidence pack filed', nth: 0 }], tag: 'Records, fingerprints, summary' }] },
+      do: [{ do: 'web.open', url: (x) => x.evRun.url, settle: 5000 }, { do: 'web.highlight', target: [{ re: 'SUMMARY\\.md', nth: 0 }, { re: 'SHA256SUMS', nth: 0 }, { re: '^Evidence pack filed', nth: 0 }], tag: 'Records, fingerprints, summary' }],
+      signedOut: [{ do: 'gh.log', run: (x) => x.evRun.id, name: 'evidence-pack', from: '\\[\\+\\] evidence-packs/.*pim_activation_history\\.json', to: '\\[\\+\\] evidence-packs/.*manifest\\.json' }] },
     { id: 'n09-lock', piece: 9, say: S('The store is set to write-once. In the lab the lock stays in its trial setting, so the lab can be torn down. A hospital locks it for good. So an auditor can check it, instead of taking my word.'),
       do: [{ do: 'web.open', url: EVIDENCE, settle: 9000 }, { do: 'web.highlight', target: { text: 'evidence', exact: true, row: true }, tag: 'Write once (trial lock: Unlocked)' }] },
 

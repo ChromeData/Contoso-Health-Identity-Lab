@@ -5,8 +5,8 @@
 //
 // GitHub is the owner's own account: the recorder has no login for it and
 // never types one. Signed out, GitHub shows a public repo but hides the job
-// summaries, the job logs and the "Run workflow" button, and the steps that
-// point at them fail (N01, N09).
+// summaries, the job logs and the "Run workflow" button. The recorder then
+// shows the run's own log in VS Code (N01, N09), so this sign-in is optional.
 //
 // This opens ONE small browser window on the recorder's own profile. You
 // sign in there the way you normally do. The window closes by itself when

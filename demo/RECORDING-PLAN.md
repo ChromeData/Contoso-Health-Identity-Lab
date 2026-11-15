@@ -19,11 +19,11 @@ with **Yes** in the trial column before that date. Those features stop when the 
 | 12 | Admin access in AWS and Azure | `N15-aws-server-access-and-azure-least-privilege.mp4` | Recorded 2026-11-15 | Yes | The PIM group for AWS admin, a Session Manager shell, the narrow Azure role and its limits. | - |
 | 13 | Access governance | `N10-microsoft-features.mp4` | Recorded 2026-11-15 | Yes | An access review, a package with an expiry, a refused request for two packages that conflict. | E39c, E53, E71 |
 | 14 | Service accounts and robots | `N21-service-accounts.mp4` | Recorded 2026-11-15 | No | The inventory report, the findings by severity, the identities with no owner, the app management policy. | E21, E70 |
-| 15 | Audit evidence | `N09-the-logbook.mp4` | Record again | No | The evidence workflow run, the seven records with hashes, a delete that the store refuses. | E06, E56, E74 |
+| 15 | Audit evidence | `N09-the-logbook.mp4` | Recorded 2026-11-15 | No | The evidence workflow run, the seven records with hashes, a delete that the store refuses. | E06, E56, E74 |
 | 16 | Detection in Sentinel | `N06-the-cameras.mp4` | Recorded 2026-11-15 | Yes | The KQL rule file, its test, the rule in Sentinel, the incident. | E15, E15b |
 | 17 | Detection in Splunk | `N07-the-second-camera.mp4` | Recorded 2026-11-15 | No | The SPL search next to its KQL twin, the result in Splunk. | E59, E61, E113 |
 | 18 | Contain a compromised account | `N22-contain-an-account.mp4` | Recorded 2026-11-15 | Yes | The approval card in Teams, the decision on the card, the playbook code: revoke, mark, disable. | E40, E41 |
-| 19 | Change access with code | `N01-the-blueprints.mp4` | Record again | No | The edit in VS Code, the commit, the pull request, the plan comment. | E01, E02 |
+| 19 | Change access with code | `N01-the-blueprints.mp4` | Recorded 2026-11-15 | No | The edit in VS Code, the commit, the pull request, the plan comment. | E01, E02 |
 | 20 | Checks on the code | `N16-code-checks.mp4` | Recorded 2026-11-15 | No | The RBAC check, the scanner self-test on a bad file, the nightly drift check. | - |
 | 21 | The lab in VS Code and GitHub | `N17-close-vscode-github.mp4` | Recorded 2026-11-15 | No | The repo in VS Code, the Actions runs, the pull request list, the apply approval. | - |
 | 22 | Move an app from AD FS | `N13-adfs-to-entra.mp4` | Recorded 2026-11-15 | No | The AD FS app, the Entra app as code, the test result. | - |

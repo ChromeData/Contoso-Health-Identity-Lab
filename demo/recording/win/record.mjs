@@ -183,6 +183,7 @@ async function standIns() {
   const latest = async (wf) => JSON.parse(await gh(['run', 'list', '-R', REPO, '--workflow', wf, '--limit', '1', '--json', 'databaseId,url']))[0];
   const n = +(process.env.COCKPIT_STANDIN_PR || 204);
   await tryIt(`PR #${n}`, async () => { const v = JSON.parse(await gh(['pr', 'view', String(n), '-R', REPO, '--json', 'number,url,headRefName,state,mergeCommit'])); c.pr = { number: v.number, url: v.url, headRefName: v.headRefName, state: v.state }; c.mergeSha = v.mergeCommit?.oid; return true; });
+  await tryIt('the apply run of that change', async () => { if (!c.mergeSha) return false; const r = JSON.parse(await gh(['run', 'list', '-R', REPO, '--workflow', 'terraform-apply.yml', '--commit', c.mergeSha, '--json', 'databaseId,conclusion,url'])).find((x) => x.conclusion === 'success'); if (r) c.changeRun = { id: r.databaseId, url: r.url }; return !!r; });
   await tryIt('the latest apply run', async () => { const r = await latest('terraform-apply.yml'); if (r) c.applyRun = { id: r.databaseId, url: r.url }; return !!r; });
   await tryIt('the latest HR feed run', async () => { const r = await latest('hr-feed.yml'); if (r) c.hrRun = { id: r.databaseId, url: r.url }; return !!r; });
   await tryIt('the latest evidence run', async () => { const r = await latest('evidence-pack.yml'); if (r) c.evRun = { id: r.databaseId, url: r.url }; return !!r; });
@@ -288,13 +289,45 @@ async function ensureSplunk() {
   splunkReady = true;
 }
 
+// GitHub is the owner's own sign-in, and the recorder may not have it. Signed
+// out, GitHub shows a public run but hides its job summary and its log. A
+// step that needs them can name other actions (`signedOut` in steps.mjs):
+// they show the run's own log, read with the gh CLI (read only), in VS Code.
+let ghIn = null;
+async function githubSignedIn() {
+  if (ghIn === null) {
+    if (!B.up) await B.launch();
+    ghIn = (await B.ctx.cookies('https://github.com')).some((x) => x.name === 'logged_in' && x.value === 'yes');
+    log(`GitHub: ${ghIn ? 'signed in' : "not signed in: a step that needs the sign-in shows the run's own log"}`);
+  }
+  return ghIn;
+}
+const runLogs = new Map();
+async function runLog(id, name, job) {
+  const file = path.join(c.tourOut, `${name}-run-${id}.log`);
+  if (runLogs.has(file)) return runLogs.get(file);
+  const raw = await new Promise((resolve, reject) => execFile('gh', ['run', 'view', String(id), '-R', REPO, '--log'], { windowsHide: true, maxBuffer: 64 << 20, timeout: 180000 }, (e, so, se) => (e ? reject(new Error((se || e.message).trim().split('\n')[0])) : resolve(so))));
+  const lines = [`# GitHub Actions run ${id} (${name}). This is the run's own log, read with the gh CLI (read only).`, `# https://github.com/${REPO}/actions/runs/${id}`, "# The name of the runner's home folder is masked (***).", ''];
+  for (const l of raw.split(/\r?\n/)) {
+    const p = l.split('\t');
+    if (p.length < 3 || (job && !new RegExp(job, 'i').test(p[0]))) continue;
+    lines.push(p.slice(2).join('\t').replace(/^﻿?\d{4}-\d\d-\d\dT[\d:.]+Z ?/, '').replace(/\x1b\[[0-9;]*m/g, '').replace(/(\/Users\/|\/home\/(?!runner\b)|[A-Za-z]:\\Users\\)[^\/\\\s:"']+/g, '$1***'));
+  }
+  if (lines.length < 4) throw new Error(`run ${id} has no log lines${job ? ` for a job like "${job}"` : ''} (logs are kept 90 days)`);
+  fs.mkdirSync(c.tourOut, { recursive: true });
+  fs.writeFileSync(file, lines.join('\n'));
+  const r = { file, lines };
+  runLogs.set(file, r);
+  return r;
+}
+
 // ---- actions (the engine's act(), dry) ----------------------------------------------
 const WRITE = new Set(['cloudsync.restart', 'pod', 'code.type', 'code.save', 'code.commit', 'code.push', 'gh.createPr', 'gh.merge', 'gh.closePr', 'gh.runWorkflow', 'tap.signin', 'staff.signin',
   'drill.ensure', 'preview.approve', 'preview.contain', 'preview.secondCheck', 'identity.signin', 'pim.deactivate', 'hr.hire', 'hr.leave']);
 const CLICKY = new Set(['web.click', 'web.type', 'private.click', 'private.type']);
-const NAV = new Set(['identity.signin', 'private.open', 'code.stop', 'code.check', 'web.open', 'activate', 'find', 'require', 'code.open', 'code.closeAll', 'web.waitFor', 'web.find', 'web.clickIf', 'gh.openJob', 'gh.planComment']);
+const NAV = new Set(['identity.signin', 'private.open', 'code.stop', 'code.check', 'web.open', 'activate', 'find', 'require', 'code.open', 'code.closeAll', 'web.waitFor', 'web.find', 'web.clickIf', 'gh.openJob', 'gh.planComment', 'gh.log']);
 const VISUAL = new Set(['private.click', 'private.highlight', 'map.focus', 'web.video', 'web.show', 'web.click', 'web.highlight', 'code.highlight', 'code.command', 'code.tree', 'card']);
-const VISUAL_AFTER = new Set(['code.diff', 'code.file', 'code.changes', 'code.stop', 'code.check']);
+const VISUAL_AFTER = new Set(['code.diff', 'code.file', 'code.changes', 'code.stop', 'code.check', 'gh.log']);
 const FOLLOW = new Set(['web.highlight', 'private.highlight', 'code.highlight']);
 const val = (v) => {
   if (typeof v !== 'function') return v;
@@ -353,6 +386,23 @@ async function act(a, s) {
       const need = await B.open(url, { settle: 5000 });
       if (need) throw new Error(`${need}: this page needs a sign-in the hidden recorder does not have`);
       await cam.show(B.page);
+      break;
+    }
+    // A part of a run's own log, in VS Code (the "Live checks" folder of the
+    // tour workspace). `from` and `to` are patterns for the first and the
+    // last line to mark.
+    case 'gh.log': {
+      const id = val(a.run);
+      const { file, lines } = await runLog(id, a.name, a.job);
+      const at = (re, start = 0) => { const k = lines.findIndex((l, i) => i >= start && new RegExp(re).test(l)); if (k < 0) throw new Error(`not in the log of run ${id}: ${re}`); return k; };
+      const first = at(a.from), last = a.to ? at(a.to, first) : first;
+      const prev = c.wsFile;
+      c.wsFile = c.tourWs; V = await codeFor(c.wsFile);
+      await front('code');
+      await V.call('command', { id: 'workbench.action.closeUnmodifiedEditors' }).catch(() => {});
+      await V.call('open', { file, line: first + 1, endLine: last + 1, highlightMs: -1 });
+      log(`[${s.id}] run ${id}: log lines ${first + 1}-${last + 1}`);
+      c.wsFile = prev; V = null;   // the next VS Code step opens its own workspace again
       break;
     }
     case 'web.find': await B.find(val(a.target), { timeout: a.timeout ?? 15000 }); break;
@@ -465,7 +515,7 @@ const holdMs = (s) => Math.round(Math.max(3500, Math.min(16000, words(s) / 2.7 *
 
 async function runStep(s, report) {
   const standIn = !!((s.cloud || s.previewStandIn) && s.standIn);
-  const all = standIn ? s.standIn : (s.do || []);
+  const all = (s.signedOut && !(await githubSignedIn())) ? s.signedOut : standIn ? s.standIn : (s.do || []);
   // identity.signin is in the engine's list of writes (a dry run on the Mac does not sign people in). Here it is done: it is the only way to show that person's page.
   const skipped = all.filter((a) => !a.previewOnly && a.do !== 'identity.signin' && (WRITE.has(a.do) || (s.write && CLICKY.has(a.do))));
   const acts = all.filter((a) => !a.previewOnly && !skipped.includes(a));

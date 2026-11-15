@@ -80,11 +80,15 @@ To run the steps with no recording, add `--check`.
 3. Build the pages: `python demo/build_pages.py`
 4. Look at each loop before you push.
 
-## GitHub sign-in (one time)
+## GitHub sign-in (not necessary)
 
 GitHub is your own account. The recorder has no login for it.
 With no sign-in, GitHub hides the job summaries, the job logs and the **Run workflow** button.
-The steps that show them fail (parts N01 and N09).
+The recorder then shows the run's own log in VS Code (parts N01 and N09). It gets the log with the `gh` CLI, which has your sign-in.
+The name of the runner's home folder is masked in that log.
+
+To show the GitHub pages in place of the log, sign in one time.
+A sign-in with Google does not work in this window. Google refuses a browser that a program controls. Use your GitHub password or a passkey.
 
 1. Make sure that no recording runs.
 2. Run `npm run win:github`.

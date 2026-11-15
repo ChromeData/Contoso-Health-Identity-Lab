@@ -165,7 +165,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Audit evidence](demo/loops/15-audit-evidence.webp)
 
-[Full clip, 1:59](demo/videos/N09-the-logbook.mp4)
+[Full clip, 1:18](demo/videos/N09-the-logbook.mp4)
 
 ## Detect and respond
 
@@ -201,7 +201,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Change access with code](demo/loops/19-change-access-with-code.webp)
 
-[Full clip, 3:27](demo/videos/N01-the-blueprints.mp4)
+[Full clip, 2:22](demo/videos/N01-the-blueprints.mp4)
 
 ### 20. Checks on the code
 

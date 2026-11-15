@@ -1,4 +1,9 @@
 {
+ "N01-the-blueprints": {
+  "date": "2026-11-15",
+  "length": "2:22",
+  "steps": 16
+ },
  "N02-hired": {
   "date": "2026-11-15",
   "length": "1:53",
@@ -38,6 +43,11 @@
   "date": "2026-11-15",
   "length": "1:05",
   "steps": 8
+ },
+ "N09-the-logbook": {
+  "date": "2026-11-15",
+  "length": "1:18",
+  "steps": 6
  },
  "N10-microsoft-features": {
   "date": "2026-11-15",
