@@ -6,7 +6,7 @@ Identity lifecycle · [Contoso Health Identity Lab](../../README.md)
 
 ![The employee changes jobs](../loops/05-the-employee-changes-jobs.webp)
 
-[Full clip, 0:44](../videos/N20-the-employee-changes-jobs.mp4)
+[Full clip, 0:45](../videos/N20-the-employee-changes-jobs.mp4)
 
 ---
 

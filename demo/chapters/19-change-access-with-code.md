@@ -6,7 +6,7 @@ Platform as code · [Contoso Health Identity Lab](../../README.md)
 
 ![Change access with code](../loops/19-change-access-with-code.webp)
 
-[Full clip, 2:22](../videos/N01-the-blueprints.mp4)
+[Full clip, 2:23](../videos/N01-the-blueprints.mp4)
 
 ---
 

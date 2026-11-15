@@ -6,7 +6,7 @@ Sign-in security · [Contoso Health Identity Lab](../../README.md)
 
 ![Conditional Access and MFA](../loops/07-conditional-access-and-mfa.webp)
 
-[Full clip, 0:57](../videos/N18-conditional-access.mp4)
+[Full clip, 0:58](../videos/N18-conditional-access.mp4)
 
 ---
 

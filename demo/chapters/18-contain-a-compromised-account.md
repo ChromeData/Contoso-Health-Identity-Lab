@@ -6,7 +6,7 @@ Detect and respond · [Contoso Health Identity Lab](../../README.md)
 
 ![Contain a compromised account](../loops/18-contain-a-compromised-account.webp)
 
-[Full clip, 1:06](../videos/N22-contain-an-account.mp4)
+[Full clip, 1:08](../videos/N22-contain-an-account.mp4)
 
 ---
 

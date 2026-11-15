@@ -6,7 +6,7 @@ Privileged access · [Contoso Health Identity Lab](../../README.md)
 
 ![Admin access in AWS and Azure](../loops/12-admin-access-in-aws-and-azure.webp)
 
-[Full clip, 1:06](../videos/N15-aws-server-access-and-azure-least-privilege.mp4)
+[Full clip, 1:07](../videos/N15-aws-server-access-and-azure-least-privilege.mp4)
 
 ---
 

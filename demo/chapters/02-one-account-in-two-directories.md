@@ -6,7 +6,7 @@ Identity lifecycle · [Contoso Health Identity Lab](../../README.md)
 
 ![One account in two directories](../loops/02-one-account-in-two-directories.webp)
 
-[Full clip, 0:27](../videos/N03-one-account-two-directories.mp4)
+[Full clip, 0:28](../videos/N03-one-account-two-directories.mp4)
 
 ---
 

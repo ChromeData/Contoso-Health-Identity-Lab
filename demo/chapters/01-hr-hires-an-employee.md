@@ -6,7 +6,7 @@ Identity lifecycle · [Contoso Health Identity Lab](../../README.md)
 
 ![HR hires an employee](../loops/01-hr-hires-an-employee.webp)
 
-[Full clip, 1:53](../videos/N02-hired.mp4)
+[Full clip, 1:52](../videos/N02-hired.mp4)
 
 ---
 

@@ -6,7 +6,7 @@ Governance and audit · [Contoso Health Identity Lab](../../README.md)
 
 ![Service accounts and robots](../loops/14-service-accounts-and-robots.webp)
 
-[Full clip, 0:49](../videos/N21-service-accounts.mp4)
+[Full clip, 0:50](../videos/N21-service-accounts.mp4)
 
 ---
 

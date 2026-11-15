@@ -6,7 +6,7 @@ Identity lifecycle · [Contoso Health Identity Lab](../../README.md)
 
 ![Access on day one](../loops/03-access-on-day-one.webp)
 
-[Full clip, 1:52](../videos/N04-first-day-doors.mp4)
+[Full clip, 1:51](../videos/N04-first-day-doors.mp4)
 
 ---
 

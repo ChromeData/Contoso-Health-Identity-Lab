@@ -6,7 +6,7 @@ Privileged access · [Contoso Health Identity Lab](../../README.md)
 
 ![Temporary admin rights](../loops/09-temporary-admin-rights.webp)
 
-[Full clip, 1:15](../videos/N05-the-master-key.mp4)
+[Full clip, 1:16](../videos/N05-the-master-key.mp4)
 
 ---
 
