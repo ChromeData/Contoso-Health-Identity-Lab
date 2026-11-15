@@ -31,6 +31,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { WIN, winRead, winWrite, winDelete, winRest } from './store.mjs';
 
 export const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO = path.resolve(HERE, '../../../..');
@@ -81,6 +82,7 @@ function security(args) {
 // (contosohealthlab.com, contosohealthlab.onmicrosoft.com), so the account
 // (the full UPN) is what tells two same-named users apart.
 export function keychainRead(service, account) {
+  if (WIN) return winRead(service, account);   // Windows Credential Manager (store.mjs)
   const out = security(['find-generic-password', '-s', service, ...(account ? ['-a', account] : []), '-w']);
   return out === null ? null : out.replace(/\n$/, '');
 }
@@ -90,6 +92,7 @@ export function keychainRead(service, account) {
 export function keychainWrite(service, account, label, secret) {
   if (!secret || /[\s"'\\]/.test(secret)) throw new Error('keychainWrite: the value must be one token without quotes, backslashes or spaces');
   if (/[\s"'\\]/.test(service + account + label.replace(/ /g, ''))) throw new Error('keychainWrite: bad service/account/label');
+  if (WIN) return winWrite(service, account, secret);
   try {
     execFileSync(SECURITY, ['-i'], {
       input: `add-generic-password -U -s ${service} -a ${account} -l "${label}" -w ${secret}\n`,
@@ -102,6 +105,7 @@ export function keychainWrite(service, account, label, secret) {
 // Delete an item (no secret in argv). Missing (exit 44) is fine; anything
 // else throws.
 export function keychainDelete(service, account) {
+  if (WIN) return winDelete(service, account);
   try { execFileSync(SECURITY, ['delete-generic-password', '-s', service, ...(account ? ['-a', account] : [])], { stdio: ['ignore', 'ignore', 'ignore'] }); return true; } catch (e) {
     if (e.status === ITEM_NOT_FOUND) return false;
     throw new Error(`Keychain delete failed (security exit ${e.status}) for ${service}`);
@@ -239,6 +243,7 @@ export function randomPassword(len = 28) {
 // ---- Graph, as the lab operator -------------------------------------------
 export function graph(method, url, body) {
   const full = url.startsWith('https://') ? url : `https://graph.microsoft.com/v1.0/${url.replace(/^\//, '')}`;
+  if (WIN) { const o = winRest(method, full, body); return o.trim() ? JSON.parse(o) : null; }   // no az CLI on Windows (store.mjs)
   const args = ['az', 'rest', '--method', method, '--url', full, '--only-show-errors'];
   let input;
   if (body !== undefined) { args.push('--headers', 'Content-Type=application/json', '--body', '@/dev/stdin'); input = JSON.stringify(body); }
