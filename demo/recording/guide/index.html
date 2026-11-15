@@ -58,10 +58,21 @@
   ul.steps li { padding: 10px 2px; border-bottom: 1px solid var(--line); font-size: 18px; }
   ul.steps li::before { content: "✓"; color: var(--ok); font-weight: 700; margin-right: 12px; }
   .dim section:not(.cur) { opacity: .42; transition: opacity .35s; } section { transition: opacity .35s; }
+  /* Speaker notes (guide-notes.js): hidden. Right-click a stop or a piece, or highlight text in it. */
+  #notes { position: fixed; right: 22px; top: 78px; width: 348px; max-height: calc(100vh - 110px); overflow: auto; z-index: 9; background: #fffdf5; border: 1px solid #e3d9b8; border-left: 5px solid var(--bar); border-radius: 8px; box-shadow: 0 10px 30px rgba(31,35,40,.18); padding: 16px 18px 14px; font-size: 16.5px; line-height: 1.45; opacity: 0; transform: translateX(14px); pointer-events: none; transition: opacity .18s, transform .18s; }
+  #notes.show { opacity: 1; transform: none; pointer-events: auto; }
+  #notes h5 { margin: 0 0 2px; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--hand); }
+  #notes h6 { margin: 0 0 10px; font-size: 18px; line-height: 1.25; }
+  #notes ul { margin: 0; padding: 0 0 0 18px; } #notes li { margin: 0 0 7px; }
+  #notes li.next { list-style: none; margin-left: -18px; color: var(--soft); font-weight: 600; }
+  #notes p { margin: 10px 0 0; font-size: 12.5px; color: var(--soft); }
+  tr.noted td { background: #fff8e1; } tr.noted td:first-child { box-shadow: inset 5px 0 0 #f2c94c; }
+  .head.noted { background: #fff8e1; border-left-color: #f2c94c; }
 </style></head>
 <body>
 <div class="top"><div class="ico"></div><b>Contoso Lab Guide</b><em>Read only</em><span>Contoso Health Identity Lab</span></div>
 <main class="sheet" id="sheet"></main>
+<aside id="notes" aria-live="polite"></aside>
 <script src="guide-data.js"></script>
 <script>
 (() => {
@@ -116,6 +127,40 @@
     await wait(450);
     return t;
   };
+
+  // ---- speaker notes --------------------------------------------------------------
+  // Hidden. Right-click a stop or a piece, or highlight text in it: its note
+  // opens at the right. Esc or a click closes it. The clips never show a note:
+  // with ?video in the address (the recorders), the notes are not loaded.
+  if (!/[?&]video\b/.test(location.search)) {
+    const s = document.createElement('script'); s.src = 'guide-notes.js';
+    s.onload = () => {
+      const N = window.GUIDE_NOTES || {}, box = document.getElementById('notes');
+      const keyOf = (el) => {
+        if (!el || !el.closest) return null;
+        const tr = el.closest('tr[id]'); let m;
+        if (tr) { if ((m = /^setup-(\d)-(\d+)$/.exec(tr.id))) return [`setup:${m[1]}.${m[2]}`, tr]; if ((m = /^tile-(\w+)$/.exec(tr.id))) return [`tile:${m[1]}`, tr]; }
+        const hd = el.closest('.head'), sec = hd && hd.closest('section');
+        if (sec) { if ((m = /^setup-(\d)$/.exec(sec.id))) return [`setup:${m[1]}`, hd]; if ((m = /^lab-(\d+)$/.exec(sec.id))) return [`lab:${m[1]}`, hd]; if (sec.id === 'delivery') return ['delivery', hd]; }
+        return null;
+      };
+      const unmark = () => document.querySelectorAll('.noted').forEach((e) => e.classList.remove('noted'));
+      const close = () => { box.classList.remove('show'); unmark(); };
+      const open = (el) => {
+        const k = keyOf(el); if (!k || !N[k[0]]) return false;
+        const [key, host] = k;
+        const title = host.matches('tr') ? `${host.querySelector('.n').textContent} ${host.querySelector('.p').firstChild.textContent}` : host.querySelector('h3').textContent.replace(/^(\d+)/, '$1 ');
+        unmark(); host.classList.add('noted');
+        box.innerHTML = `<h5>My notes</h5><h6>${esc(title)}</h6><ul>${N[key].map((l) => `<li${/^Next:/.test(l) ? ' class="next"' : ''}>${esc(l)}</li>`).join('')}</ul><p>Esc closes. Right-click or highlight a different piece for its note.</p>`;
+        box.scrollTop = 0; box.classList.add('show'); return true;
+      };
+      document.addEventListener('contextmenu', (e) => { if (box.contains(e.target)) return; if (open(e.target)) e.preventDefault(); });
+      document.addEventListener('mousedown', (e) => { if (e.button === 0 && !box.contains(e.target) && box.classList.contains('show')) close(); });
+      document.addEventListener('mouseup', (e) => { if (e.button !== 0 || box.contains(e.target)) return; const sel = getSelection(); if (sel && !sel.isCollapsed && sel.anchorNode) open(sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    };
+    document.head.appendChild(s);
+  }
 })();
 </script>
 </body></html>
