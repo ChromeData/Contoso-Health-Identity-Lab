@@ -6,6 +6,8 @@
 //   node win/record.mjs --part 18,19,21      record these parts
 //   node win/record.mjs --part 18 --check    run the steps, record nothing
 //   node win/record.mjs --part 18 --out <dir>
+//   node win/record.mjs --part 18 --profile <dir>   another browser profile (the
+//                                 usual one is in use); it has no GitHub sign-in
 //
 // What is the same as the Mac cockpit: the steps (steps.mjs), the browser
 // helpers (lib/browser.mjs: highlight box, blur of ids and addresses, pop-up
@@ -212,7 +214,7 @@ async function standIns() {
 
 // ---- the stage ------------------------------------------------------------------
 const cam = new Screencast({ fps: +opt('--fps', 15), width: W, height: H, log });
-const B = new HiddenBrowser({ profileDir: path.join(ROOT, '.recording-profile'), width: W, height: H, shotsDir: path.join(OUT, 'shots'), log });
+const B = new HiddenBrowser({ profileDir: path.resolve(opt('--profile', path.join(ROOT, '.recording-profile'))), width: W, height: H, shotsDir: path.join(OUT, 'shots'), log });
 let codeBrowser = null;
 const codes = new Map();    // workspace file -> WebCode
 let V = null;
@@ -272,11 +274,25 @@ async function ensureEntra() {
   entraReady = true;
 }
 
+// Splunk (the local container): its own admin, in the hidden browser. The
+// password is the one splunk-up.sh made in lab/splunk/.env on this PC.
+const SPLUNK = { id: 'splunk-admin', url: 'http://127.0.0.1:8000/en-US/app/search/search' };
+let splunkReady = false;
+async function ensureSplunk() {
+  if (splunkReady) return;
+  T ||= await import(pathToFileURL(path.join(LAB, 'lab', 'scripts', 'demo', 'signin', 'identity.mjs')).href);
+  if (!B.up) await B.launch();
+  log(`sign-in: ${SPLUNK.id} (local Splunk)`);
+  const r = await T.signIn(SPLUNK.id, SPLUNK.url, { context: B.ctx });
+  await r?.close?.();
+  splunkReady = true;
+}
+
 // ---- actions (the engine's act(), dry) ----------------------------------------------
 const WRITE = new Set(['cloudsync.restart', 'pod', 'code.type', 'code.save', 'code.commit', 'code.push', 'gh.createPr', 'gh.merge', 'gh.closePr', 'gh.runWorkflow', 'tap.signin', 'staff.signin',
   'drill.ensure', 'preview.approve', 'preview.contain', 'preview.secondCheck', 'identity.signin', 'pim.deactivate', 'hr.hire', 'hr.leave']);
 const CLICKY = new Set(['web.click', 'web.type', 'private.click', 'private.type']);
-const NAV = new Set(['identity.signin', 'private.open', 'code.stop', 'code.check', 'web.open', 'activate', 'find', 'require', 'code.open', 'code.closeAll', 'web.waitFor', 'web.find', 'web.clickIf']);
+const NAV = new Set(['identity.signin', 'private.open', 'code.stop', 'code.check', 'web.open', 'activate', 'find', 'require', 'code.open', 'code.closeAll', 'web.waitFor', 'web.find', 'web.clickIf', 'gh.openJob', 'gh.planComment']);
 const VISUAL = new Set(['private.click', 'private.highlight', 'map.focus', 'web.video', 'web.show', 'web.click', 'web.highlight', 'code.highlight', 'code.command', 'code.tree', 'card']);
 const VISUAL_AFTER = new Set(['code.diff', 'code.file', 'code.changes', 'code.stop', 'code.check']);
 const FOLLOW = new Set(['web.highlight', 'private.highlight', 'code.highlight']);
@@ -310,9 +326,33 @@ async function act(a, s) {
       await front('browser');
       let need = await B.open(url, { settle: a.settle ?? 2500 });
       if (need && /Microsoft/.test(need)) { entraReady = false; await ensureEntra(); need = await B.open(url, { settle: a.settle ?? 2500 }); }
+      if (need === 'Splunk') { splunkReady = false; await ensureSplunk(); need = await B.open(url, { settle: a.settle ?? 2500 }); }
       if (need) throw new Error(`${need}: this page needs a sign-in the hidden recorder does not have`);
       await cam.show(B.page);
       if (a.deny && new RegExp(a.deny, 'i').test(await B.page.locator('body').innerText().catch(() => ''))) throw new Error('the page refuses this identity: it needs a role that can see it');
+      break;
+    }
+    // One job of the newest finished run of a workflow on main, or a pull
+    // request's plan comment (both read only, found with the gh CLI).
+    case 'gh.openJob': case 'gh.planComment': {
+      let url;
+      if (a.do === 'gh.openJob') {
+        const runs = JSON.parse(await gh(['run', 'list', '-R', REPO, '--workflow', a.workflow, '--branch', 'main', '--limit', '20', '--json', 'databaseId,status,conclusion,event']));
+        const run = runs.find((r) => r.status === 'completed' && r.conclusion === 'success' && r.event === 'push') || runs.find((r) => r.status === 'completed');
+        if (!run) throw new Error(`no finished ${a.workflow} run on main`);
+        const jobs = JSON.parse(await gh(['api', `repos/${REPO}/actions/runs/${run.databaseId}/jobs?per_page=100`])).jobs || [];
+        const j = jobs.find((x) => new RegExp(a.job, 'i').test(x.name));
+        if (!j) throw new Error(`no job like "${a.job}" in ${a.workflow} run ${run.databaseId}`);
+        url = j.html_url;
+      } else {
+        const comments = JSON.parse(await gh(['api', `repos/${REPO}/issues/${a.pr}/comments?per_page=100`]));
+        const plan = comments.find((x) => x.user?.login === 'github-actions[bot]' && (x.body || '').startsWith('## Terraform plan'));
+        url = plan?.html_url || `https://github.com/${REPO}/pull/${a.pr}`;
+      }
+      await front('browser');
+      const need = await B.open(url, { settle: 5000 });
+      if (need) throw new Error(`${need}: this page needs a sign-in the hidden recorder does not have`);
+      await cam.show(B.page);
       break;
     }
     case 'web.find': await B.find(val(a.target), { timeout: a.timeout ?? 15000 }); break;
@@ -473,15 +513,19 @@ let exit = 0;
 const lines = [];
 try {
   await standIns();
-  const list = stepsV2(c).filter((x) => parts.includes(x.piece) && !x.pending && !x.silentSkip);
+  // Every run here is a preview: a step that has a preview line (it says what
+  // is on screen when an earlier run is shown) uses that line, as the Mac's
+  // preview does.
+  const list = stepsV2(c).filter((x) => parts.includes(x.piece) && !x.pending && !x.silentSkip).map((x) => (x.previewSay ? { ...x, say: x.previewSay } : x));
   for (const n of parts) {
     const piece = PIECES_V2.find((p) => p.n === n);
     const steps = list.filter((x) => x.piece === n);
     if (!piece || !steps.length) { log(`part ${n}: no steps`); exit = 1; continue; }
     log(`==== ${piece.slug}: ${steps.length} steps${CHECK ? ' (check only)' : ''}`);
-    const other = (piece.sessions || []).filter((x) => x !== 'entra');
+    const other = (piece.sessions || []).filter((x) => x !== 'entra' && x !== 'splunk');
     if (other.length) log(`${piece.slug}: needs ${other.join(', ')}: steps in those windows will fail (not in the hidden recorder yet)`);
     if ((piece.sessions || []).includes('entra')) await ensureEntra();
+    if ((piece.sessions || []).includes('splunk')) await ensureSplunk();
     const report = [];
     const file = path.join(OUT, `${piece.slug}.mp4`);
     if (!CHECK) { await cam.start(file); await cam.pause(); }

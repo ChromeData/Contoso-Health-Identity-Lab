@@ -63,7 +63,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Access on day one](demo/loops/03-access-on-day-one.webp)
 
-[Full clip, 1:45](demo/videos/N04-first-day-doors.mp4)
+[Full clip, 1:52](demo/videos/N04-first-day-doors.mp4)
 
 ### 4. Request more access
 
@@ -115,7 +115,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Temporary admin rights](demo/loops/09-temporary-admin-rights.webp)
 
-[Full clip, 1:09](demo/videos/N05-the-master-key.mp4)
+[Full clip, 1:15](demo/videos/N05-the-master-key.mp4)
 
 ### 10. Admin passwords and recorded sessions
 
@@ -175,7 +175,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Detection in Sentinel](demo/loops/16-detection-in-sentinel.webp)
 
-[Full clip, 1:04](demo/videos/N06-the-cameras.mp4)
+[Full clip, 1:03](demo/videos/N06-the-cameras.mp4)
 
 ### 17. Detection in Splunk
 
@@ -191,7 +191,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![Contain a compromised account](demo/loops/18-contain-a-compromised-account.webp)
 
-[Full clip, 1:00](demo/videos/N22-contain-an-account.mp4)
+[Full clip, 1:06](demo/videos/N22-contain-an-account.mp4)
 
 ## Platform as code
 
@@ -217,7 +217,7 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ![The lab in VS Code and GitHub](demo/loops/21-the-lab-in-vs-code-and-github.webp)
 
-[Full clip, 0:55](demo/videos/N17-close-vscode-github.mp4)
+[Full clip, 0:56](demo/videos/N17-close-vscode-github.mp4)
 
 ## Migrations
 

@@ -841,7 +841,12 @@ export function stepsV2(c) {
     // ================================================================= N07
     { id: 'n07-rule', piece: 7, say: S("Here is the same rule in SPL, Splunk's search language. Each KQL rule has an SPL twin."),
       do: [{ do: 'code.open', ws: DEMO_WS }, { do: 'code.stop', stop: 'detect' }, { do: 'code.file', file: bp('lab/splunk/detections/pim-activation.spl'), line: 73, endLine: 74, highlight: true }] },
-    { id: 'n07-strip', piece: 7, say: S('A script turns the SPL files into Splunk settings and loads them. This Splunk runs on my Mac. Every five minutes it pulls the tenant\'s logs from Azure.'),
+    // On the Windows PC (win/record.mjs) Splunk runs in WSL and has no
+    // five-minute feed: its rows come from one replay before the recording
+    // (lab/splunk/query-as-operator.mjs). The line says what is true there.
+    { id: 'n07-strip', piece: 7, say: S(process.platform === 'win32'
+      ? 'A script turns the SPL files into Splunk settings and loads them. This Splunk runs on my own computer. A replay copies the tenant\'s logs into it from Azure.'
+      : 'A script turns the SPL files into Splunk settings and loads them. This Splunk runs on my Mac. Every five minutes it pulls the tenant\'s logs from Azure.'),
       do: [M('tile:SPLUNK')] },
     { id: 'n07-run', piece: 7, say: S("It finds Raj's activation too. Twenty-two rules ran here at recording, and each one fired on test events."),
       do: [{ do: 'web.open', url: SPLUNK_PIM, settle: 8000 }, { do: 'web.find', target: { re: '^[1-9][\\d,]* (events?|results?)\\b', nth: 0 }, timeout: 45000 }, { do: 'web.highlight', target: { re: 'adm-raj\\.patel', nth: 0 }, tag: "It found Raj's activation" }],
