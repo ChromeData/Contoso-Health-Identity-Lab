@@ -9,7 +9,8 @@ Microsoft Entra tenant, and all of it is code. The clips follow one new employee
 hire to departure. **In the first measured leaver run, for nurse Dana Okafor, Active Directory
 disabled the account in 7 seconds and Entra in less than 3 minutes.**
 
-The 23 chapters show the lab in operation. Each chapter has its own page with a short clip.
+The 23 chapters show the lab in operation. Each chapter has its own page: a short clip, and links
+to the code, the test, the evidence and the decision behind it.
 
 | Part | Chapter | Summary |
 |---|---|---|
@@ -41,5 +42,6 @@ Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [th
 
 ---
 
+What is in each folder: [`lab/README.md`](lab/README.md).
 Results, limits, and evidence: [`lab/docs/platform-details.md`](lab/docs/platform-details.md).
 How the clips are made: [`demo/README.md`](demo/README.md).
