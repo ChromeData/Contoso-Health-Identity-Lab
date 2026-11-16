@@ -86,6 +86,36 @@ Then `terraform plan` must say **No changes**. If it does not, stop.
 | E133 | 2026-11-07 | Bastion Premium, its public IP, a PIM-eligible Reader and a reviewer grant, made by script (`lab/bastion/capture.sh`) | `feat/bastion-session-recording` | #247 merged 2026-11-08 23:52 | Code and E133 on `main` now. Live read 2026-11-08: no Bastion, no Bastion PIM eligibility, no Storage Account Key Operator grant. **Left over:** the recordings account `stbstreca9b511bc` (shared key now off) |
 | - | 2026-11-08 | Cloud Sync mappings, the leave-date Lifecycle Workflow schedule, joiner v2 | `feat/leaver-lcw-leavedate` (stacked) | #257 merged 2026-11-08 21:25 (`f605fc7`) | Code on `main` now (rows E179-E181). Tenant config not re-read after the merge |
 
+## Owner merges with a rule bypass (2026-11-15 and 2026-11-16)
+
+Added 2026-11-16. The rule in [`lab/pipelines`](../pipelines/docs/3-why-a-public-repo.md) is: after
+`APPLY_BOT_LOGIN` is set, the bot authors and merges each pull request, and the owner only approves.
+Four merges did not follow that rule. An AI helper made them from the Windows PC as the owner's
+GitHub account, at the owner's direction. The bot's key is on the Mac only.
+
+| PR | Merged (UTC) | Author | Merged by | How | Paths under `lab/terraform/` or `.github/` | Result |
+|---|---|---|---|---|---|---|
+| #295 | 2026-11-15 17:14 | ChromeData | ChromeData | Ruleset `main-protection`: repository admin added to the bypass list (pull requests only), merge, bypass removed | none | No apply run |
+| #297 | 2026-11-15 18:38 | ChromeData | ChromeData | The same bypass, added and removed | none | No apply run |
+| #296 | 2026-11-15 18:42 | dependabot | ChromeData | Owner approval, then a normal merge. No bypass | none | No apply run |
+| #298 | 2026-11-16 23:46 | ChromeData | ChromeData | The same bypass, added and removed | 29 files: pages, module READMEs, and one step in `lab-tests.yml`. No `.tf` file | Apply run 43982227919: the plan said **No changes**, then the gate refused the run, because the bot did not author and merge the PR. Nothing was applied |
+
+Each PR had all its required checks green at the merge. No person other than the author reviewed #295,
+#297 and #298. The ruleset is as it was before: the bypass list is empty.
+
+On 2026-11-16 at about 23:08Z the repository name changed to `Contoso-Health-Identity-Lab`. Entra compares
+the subject of a federated credential with case, so the PLAN sign-in failed on PR #298 (run 43980363696,
+`AADSTS7002138`). The name went back to `contoso-health-identity-lab` at about 23:40Z, at the owner's
+direction, and the same run passed. A rename needs the steps in `demo/RECORDING-PLAN.md`
+("Rename the repo before you record").
+
+**What stays.** The refused apply run stays in the history of `main`. The tenant did not change.
+
+**The rule, again.** The owner does not merge, and a helper that acts as the owner does not merge. From a
+computer that does not have the bot's key, a helper opens the pull request and stops. The next change
+under `lab/terraform/` goes through a bot pull request from the Mac. That merge starts a run that the
+owner can approve.
+
 ## What this means for the spoken lines
 
 - "Nothing goes live until I approve it" was false. The lines now say: no
