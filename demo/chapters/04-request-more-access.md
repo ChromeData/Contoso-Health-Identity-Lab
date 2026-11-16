@@ -8,6 +8,15 @@ Identity lifecycle · [Contoso Health Identity Lab](../../README.md)
 
 [Full clip, 2:28](../videos/N04b-the-service-desk.mp4)
 
+## Where it lives
+
+| | |
+|---|---|
+| **Code** | [The ServiceNow build](../../lab/servicenow/README.md) · [The apply script](../../lab/servicenow/apply.py) |
+| **Test** | [ServiceNow tests](../../lab/servicenow/tests) |
+| **Evidence** | [The read-back of the live run](../../lab/evidence/servicenow/20261107T182703Z) · [Capture log, row E92](../../lab/evidence/capture-log.csv) |
+| **Decision** | [ADR 0008: Entra ID Governance for access](../../lab/docs/adr/0008-iga-entra-id-governance-midpoint-vs-sailpoint-saviynt.md) |
+
 ---
 
 [← 3. Access on day one](03-access-on-day-one.md) · [All chapters](../../README.md) · [5. The employee changes jobs →](05-the-employee-changes-jobs.md)

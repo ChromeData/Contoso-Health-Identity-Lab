@@ -124,3 +124,48 @@ or `keyvault_protection_effect`, made after the Audit results are read.
 
 `envs/bootstrap/tests/optin.tftest.hcl` adds one assertion and two runs: nothing by default,
 the opt-in in Audit, and a typo'd effect refused.
+
+## Inputs, outputs and resources
+
+The lists below are made by `terraform-docs`. Do not edit them by hand. Run [`tools/module-docs.sh`](../../tools/module-docs.sh).
+
+<!-- BEGIN_TF_DOCS -->
+### Requirements
+
+| Name | Version |
+| ---- | ------- |
+| terraform | >= 1.6.0 |
+| azurerm | ~> 4.0 |
+
+### Providers
+
+| Name | Version |
+| ---- | ------- |
+| azurerm | ~> 4.0 |
+
+### Resources
+
+| Name | Type |
+| ---- | ---- |
+| [azurerm_policy_definition.keyvault_protection](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/policy_definition) | resource |
+| [azurerm_policy_definition.no_standing_owner](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/policy_definition) | resource |
+| [azurerm_subscription_policy_assignment.keyvault_protection](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subscription_policy_assignment) | resource |
+| [azurerm_subscription_policy_assignment.no_standing_owner](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subscription_policy_assignment) | resource |
+
+### Inputs
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | :------: |
+| subscription\_id | Resource id of the subscription the two policies are assigned to: /subscriptions/<guid> (envs/bootstrap passes data.azurerm\_subscription.current.id). | `string` | n/a | yes |
+| keyvault\_protection\_effect | What the "Key Vaults keep deletion protection" policy does to a vault<br/>created or updated without purge protection (or with soft delete off):<br/>Audit (default), Deny or Disabled. Same rollout as standing\_owner\_effect. | `string` | `"Audit"` | no |
+| owner\_allowed\_principal\_ids | Object ids that may still be GIVEN Owner on the subscription once the<br/>policy denies: the lab owner's account and the lab operator's service<br/>principal (the two standing Owners today). Read them with:<br/>  az role assignment list --scope /subscriptions/<id> --role Owner --query "[].principalId" -o tsv<br/>Required (non-empty) when standing\_owner\_effect = "Deny", so a Deny can<br/>never go out that would stop the operator's own Owner grant<br/>(envs/operator) from being re-created. | `list(string)` | `[]` | no |
+| standing\_owner\_effect | What the "no new standing Owner" policy does to a new Owner role<br/>assignment for anyone not in owner\_allowed\_principal\_ids:<br/>  Audit    (default) allow it, and record it as non-compliant;<br/>  Deny     refuse it;<br/>  Disabled do nothing.<br/>Roll out in Audit, read the compliance results, then switch to Deny. | `string` | `"Audit"` | no |
+
+### Outputs
+
+| Name | Description |
+| ---- | ----------- |
+| effects | The effect each guardrail runs with (Audit until someone deliberately switches it). |
+| keyvault\_protection\_assignment\_id | Policy assignment id of the Key Vault deletion-protection guardrail. |
+| standing\_owner\_assignment\_id | Policy assignment id of the no-new-standing-Owner guardrail (az policy state list --policy-assignment <name>). |
+<!-- END_TF_DOCS -->

@@ -57,6 +57,21 @@ jobs:
       - name: terraform fmt -check
         run: terraform fmt -check -recursive lab/terraform
 
+      # The inputs, outputs and resources lists in each module README come from
+      # terraform-docs (lab/terraform/tools/module-docs.sh). This step fails
+      # when a list is old. The binary comes from the project's own release and
+      # is checked against a pinned SHA-256 before it runs.
+      - name: Module READMEs are current (terraform-docs, SHA-256 pinned)
+        run: |
+          set -euo pipefail
+          v=0.25.1
+          f="terraform-docs-v${v}-linux-amd64.tar.gz"
+          curl -sSfL -o "${RUNNER_TEMP}/${f}" "https://github.com/terraform-docs/terraform-docs/releases/download/v${v}/${f}"
+          echo "246f1a3211c9dbbed4c4af82b856dbd40acda78816ac8cdb5203c2869b659c76  ${RUNNER_TEMP}/${f}" | sha256sum -c -
+          mkdir -p "${RUNNER_TEMP}/tfdocs"
+          tar -xzf "${RUNNER_TEMP}/${f}" -C "${RUNNER_TEMP}/tfdocs" terraform-docs
+          PATH="${RUNNER_TEMP}/tfdocs:${PATH}" bash lab/terraform/tools/module-docs.sh --check
+
       - name: Key Vault secret in Terraform state, static checks (lab/secrets/state-leak)
         # The measurement itself (run.sh) creates a throwaway vault in the lab
         # subscription, so it runs as the lab operator on the Mac, not here:

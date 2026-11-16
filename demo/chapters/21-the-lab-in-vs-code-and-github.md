@@ -8,6 +8,15 @@ Platform as code · [Contoso Health Identity Lab](../../README.md)
 
 [Full clip, 0:56](../videos/N17-close-vscode-github.mp4)
 
+## Where it lives
+
+| | |
+|---|---|
+| **Code** | [The Terraform](../../lab/terraform/README.md) · [The workflows](../../.github/workflows) · [How the pipeline works](../../lab/pipelines/README.md) |
+| **Test** | [The Terraform tests](../../lab/terraform/docs/tests.md) |
+| **Evidence** | [How the evidence folder works](../../lab/evidence/README.md) |
+| **Decision** | [ADR 0004: the pipeline signs in with no secret](../../lab/docs/adr/0004-pipeline-workload-identity-federation.md) |
+
 ---
 
 [← 20. Checks on the code](20-checks-on-the-code.md) · [All chapters](../../README.md) · [22. Move an app from AD FS →](22-move-an-app-from-ad-fs.md)

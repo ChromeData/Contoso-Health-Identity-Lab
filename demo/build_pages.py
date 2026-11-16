@@ -7,6 +7,7 @@ demo/videos/<clip>.mp4 exists. Run demo/make_loops.py first, then this.
 """
 import os
 
+from chapter_links import LINKS
 from chapters import CHAPTERS, GROUPS, RECORDED
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -28,7 +29,8 @@ def readme():
         "Microsoft Entra tenant, and all of it is code. The clips follow one new employee, Sam Rivera, from",
         "hire to departure. **In the first measured leaver run, for nurse Dana Okafor, Active Directory",
         "disabled the account in 7 seconds and Entra in less than 3 minutes.**", "",
-        f"The {len(CHAPTERS)} chapters show the lab in operation. Each chapter has its own page with a short clip.",
+        f"The {len(CHAPTERS)} chapters show the lab in operation. Each chapter has its own page: a short clip, and links",
+        "to the code, the test, the evidence and the decision behind it.",
         "", "| Part | Chapter | Summary |", "|---|---|---|",
     ]
     for c in CHAPTERS:
@@ -37,12 +39,32 @@ def readme():
           "[threat model](lab/docs/threat-model.md) · [risk register](lab/docs/risk-register.md) · "
           "[field notes](lab/docs/field-notes.md)",
           "", "---", "",
+          "What is in each folder: [`lab/README.md`](lab/README.md).",
           "Results, limits, and evidence: [`lab/docs/platform-details.md`](lab/docs/platform-details.md).",
           "How the clips are made: [`demo/README.md`](demo/README.md).", ""]
     with open(os.path.join(ROOT, "README.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(o))
     chapters()
     return clips
+
+
+KINDS = [("code", "Code"), ("test", "Test"), ("evidence", "Evidence"), ("decision", "Decision"), ("runbook", "Runbook")]
+
+
+def where(c):
+    """The 'Where it lives' table of a chapter page (demo/chapter_links.py). A path that does not exist stops the build."""
+    links = LINKS.get(c["clip"])
+    if not links:
+        raise SystemExit(f"demo/chapter_links.py has no entry for {c['clip']}")
+    o = ["", "## Where it lives", "", "| | |", "|---|---|"]
+    for key, name in KINDS:
+        items = links.get(key) or []
+        for label, path in items:
+            if not has(path):
+                raise SystemExit(f"demo/chapter_links.py: {c['clip']} {key}: {path} does not exist")
+        if items:
+            o.append(f"| **{name}** | " + " · ".join(f"[{label}](../../{path})" for label, path in items) + " |")
+    return o
 
 
 def chapters():
@@ -60,6 +82,7 @@ def chapters():
                 o += ["", f"[Full clip, {c['length']}](../videos/{c['clip']}.mp4)"]
         else:
             o += ["The clip for this chapter comes later."]
+        o += where(c)
         nav = []
         if k > 0:
             p = CHAPTERS[k - 1]

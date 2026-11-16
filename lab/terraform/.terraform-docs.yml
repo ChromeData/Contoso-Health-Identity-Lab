@@ -1,0 +1,28 @@
+# terraform-docs settings for the module READMEs (tools/module-docs.sh).
+# The lists go between the BEGIN_TF_DOCS and END_TF_DOCS markers of each README.
+formatter: "markdown table"
+
+sections:
+  show:
+    - requirements
+    - providers
+    - resources
+    - inputs
+    - outputs
+
+output:
+  file: README.md
+  mode: inject
+
+sort:
+  enabled: true
+  by: required
+
+settings:
+  anchor: false
+  default: true
+  required: true
+  type: true
+  hide-empty: true
+  lockfile: false
+  indent: 3
