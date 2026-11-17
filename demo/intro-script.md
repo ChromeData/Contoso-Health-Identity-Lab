@@ -3,6 +3,8 @@
 What Michael reads on camera for the intro, while he scrolls the lab guide (`recording/guide/index.html`, a plain document). One line per step, in order, grouped by the guide stop on screen. Each line shows the guide spot in brackets.
 Source: the `piece: 0` steps in [`recording/steps.mjs`](recording/steps.mjs). If the two differ, `steps.mjs` wins.
 
+This is the long version (31 lines, about 5 minutes). The video uses the short version in [`shot-list.md`](shot-list.md): a main intro of about 2 minutes, one short take for each part, and a close.
+
 ## Opening: the top of the guide
 
 1. [`overview`] Hi, I'm Michael. I'm an identity and privileged access engineer. I build IAM, PAM and cloud security labs, and this is my biggest one. IAM is identity and access management. PAM is privileged access management: how admin power is guarded.
@@ -27,7 +29,7 @@ Source: the `piece: 0` steps in [`recording/steps.mjs`](recording/steps.mjs). If
 
 ## Setup stop 4: the people
 
-11. [`setup:4`] Stop four: the people. Thirteen staff and three admins, all from HR. Each IT admin also has a separate admin account, only for admin work, so an everyday login never carries admin power.
+11. [`setup:4`] Stop four: the people. The staff come from HR, and three of them are IT admins. Each IT admin also has a separate admin account, only for admin work, so an everyday login never carries admin power.
 
 ## Setup stop 5: the watchers
 
@@ -56,7 +58,7 @@ Source: the `piece: 0` steps in [`recording/steps.mjs`](recording/steps.mjs). If
 
 ## Lab stop 10: sign-in rules
 
-19. [`lab:10`] Sign-in rules. Conditional Access, or CA, checks every sign-in: who, from where, and how it was proven. Nine rules are enforced, so a stolen password alone gets nobody in.
+19. [`lab:10`] Sign-in rules. Conditional Access, or CA, checks every sign-in: who, from where, and how it was proven. Ten rules are enforced, so a stolen password alone gets nobody in.
 20. [`tile:CAPR`] New rules start report-only: they log what they would block, and block nothing. CA002, a phishing-proof sign-in for admins, and CA021, an extra check when the top admins switch on their power, are still report-only. Two emergency accounts sit outside every rule, so a bad rule can be undone.
 
 ## Lab stop 11: admin power
@@ -69,7 +71,7 @@ Source: the `piece: 0` steps in [`recording/steps.mjs`](recording/steps.mjs). If
 
 ## Lab stop 13: leaving
 
-23. [`lab:13`] Leaving. HR ends the job, and in the test run Active Directory switched the account off within a minute. Entra, ServiceNow and AWS followed, each on its own sync. IT's leaver workflow is live, but its package removal has not passed its test yet.
+23. [`lab:13`] Leaving. HR ends the job, and in the test run Active Directory switched the account off within a minute. Entra, ServiceNow and AWS followed, each on its own sync. IT's leaver workflow is live, and a Logic App removes the access that came from the job.
 
 ## Lab stop 14: proof
 
@@ -89,7 +91,7 @@ Source: the `piece: 0` steps in [`recording/steps.mjs`](recording/steps.mjs). If
 
 ## Newer pieces: Okta
 
-28. [`tile:OKTAMIG`] Okta is the login of a clinic the hospital bought. Moving its three apps to Entra is built. The cut-over has not run yet.
+28. [`tile:OKTAMIG`] Okta is the login of a clinic the hospital bought. The first of its three apps is cut over to Entra. The other two are next.
 
 ## Newer pieces: server access
 

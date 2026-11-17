@@ -598,7 +598,7 @@ export function stepsV2(c) {
     // guide 3: the directory
     { id: 'n00-dc01', piece: 0, say: S("Stop three: the directory. Hospital PCs still sign in to Active Directory, an older on-site login system. Here it runs on DC01, a Windows server in Azure. Cloud Sync copies each account up to Entra, so one person has one login, on old PCs and in cloud apps."), do: [M('setup:3')] },
     // guide 4: the people
-    { id: 'n00-people', piece: 0, say: S("Stop four: the people. Thirteen staff and three admins, all from HR. Each IT admin also has a separate admin account, only for admin work, so an everyday login never carries admin power."), do: [M('setup:4')] },
+    { id: 'n00-people', piece: 0, say: S("Stop four: the people. The staff come from HR, and three of them are IT admins. Each IT admin also has a separate admin account, only for admin work, so an everyday login never carries admin power."), do: [M('setup:4')] },
     // guide 5: the watchers
     { id: 'n00-watchers', piece: 0, say: S("Stop five: the watchers. A SIEM, a security information and event management system, collects logs and runs alarm rules on them. Microsoft Sentinel is one. I wrote the rules as code. Fifteen run there, plus Microsoft's Fusion rule. Each matches a technique in MITRE ATT&CK, a public catalog of how attackers work."), do: [M('setup:5')] },
     { id: 'n00-splunk', piece: 0, say: S("Splunk is another SIEM. It gets the same logs every five minutes, and twenty-two rules ran there. Why both: the rules move with the hospital, whichever tool it owns."), do: [M('setup:5.2')] },
@@ -613,14 +613,14 @@ export function stepsV2(c) {
     // guide 10: the outside systems
     { id: 'n00-apps', piece: 0, say: S("The outside systems: AWS, ServiceNow and Okta. Entra creates the accounts in AWS and ServiceNow. Each app accepts only a sign-in that Entra signed. So one switch in Entra stops new sign-ins everywhere."), do: [M('lab:9')] },
     // guide 11: sign-in rules
-    { id: 'n00-ca', piece: 0, say: S("Sign-in rules. Conditional Access, or CA, checks every sign-in: who, from where, and how it was proven. Nine rules are enforced, so a stolen password alone gets nobody in."), do: [M('lab:10')] },
+    { id: 'n00-ca', piece: 0, say: S("Sign-in rules. Conditional Access, or CA, checks every sign-in: who, from where, and how it was proven. Ten rules are enforced, so a stolen password alone gets nobody in."), do: [M('lab:10')] },
     { id: 'n00-ca-report', piece: 0, say: S("New rules start report-only: they log what they would block, and block nothing. CA002, a phishing-proof sign-in for admins, and CA021, an extra check when the top admins switch on their power, are still report-only. Two emergency accounts sit outside every rule, so a bad rule can be undone."), do: [M('tile:CAPR')] },
     // guide 12: admin power
     { id: 'n00-pim', piece: 0, say: S("Admin power. PIM, Privileged Identity Management, lends it for a few hours, with a reason and a second check. When the time ends, it switches off on its own. Why: a stolen admin account that holds nothing gets nothing. In Entra, no IT admin holds an admin role all day. In Active Directory, four Domain Admin accounts are still standing, and PIM cannot reach them."), do: [M('lab:11')] },
     // guide 13: alarms
     { id: 'n00-detect', piece: 0, say: S("Alarms. My Sentinel rule caught that admin power-up and opened an incident, and the same rule runs in Splunk. Nothing is locked until a person approves it in Teams, because a wrong lockout can stop a nurse at a bedside."), do: [M('lab:12')] },
     // guide 14: leaving
-    { id: 'n00-leaver', piece: 0, say: S("Leaving. HR ends the job, and in the test run Active Directory switched the account off within a minute. Entra, ServiceNow and AWS followed, each on its own sync. IT's leaver workflow is live, but its package removal has not passed its test yet."), do: [M('lab:13')] },
+    { id: 'n00-leaver', piece: 0, say: S("Leaving. HR ends the job, and in the test run Active Directory switched the account off within a minute. Entra, ServiceNow and AWS followed, each on its own sync. IT's leaver workflow is live, and a Logic App removes the access that came from the job."), do: [M('lab:13')] },
     // guide 15: proof
     { id: 'n00-proof', piece: 0, say: S("Proof. One click runs the evidence workflow. It files each record with a fingerprint, into a write-once store in Azure. In the lab, its lock stays in its unlocked trial mode, so the lab can be torn down. Why: an auditor can check, instead of taking my word."), do: [M('lab:14')] },
     // guide 16: admin passwords and recorded sessions
@@ -630,7 +630,7 @@ export function stepsV2(c) {
     // guide 18: moving an app off AD FS
     { id: 'n00-adfs', piece: 0, say: S("AD FS, Active Directory Federation Services, is an older sign-in server. Its signing key can forge a sign-in for anyone, which is why companies move off it. One app's move off it, to Entra, is built and tested. The cut-over has not run yet."), do: [M('tile:ADFS')] },
     // guide 19: Okta
-    { id: 'n00-okta', piece: 0, say: S("Okta is the login of a clinic the hospital bought. Moving its three apps to Entra is built. The cut-over has not run yet."), do: [M('tile:OKTAMIG')] },
+    { id: 'n00-okta', piece: 0, say: S("Okta is the login of a clinic the hospital bought. The first of its three apps is cut over to Entra. The other two are next."), do: [M('tile:OKTAMIG')] },
     // guide 20: server access in AWS, least privilege in Azure
     { id: 'n00-ssm', piece: 0, say: S("Server access in AWS goes through Session Manager, only during a PIM loan, with no SSH key and no open port. SSH is the usual way to log in to a server. The test server ran, and was then torn down. In Azure, a narrow operator role can start a server but not change its network. It is borrowed through PIM too."), do: [M('tile:SSM')] },
     // guide 21: delivery
