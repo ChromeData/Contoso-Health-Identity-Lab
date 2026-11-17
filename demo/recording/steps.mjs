@@ -1017,9 +1017,11 @@ export function stepsV2(c) {
     // RAN · tenant for the clinic estate (E115); the Okta admin console has
     // no cockpit sign-in (no Okta admin in the sign-in tool), so its screens
     // show the code that built them (PR #222, cockpit/.v2/okta). Rows 7 and
-    // 8 (cut-over, rollback) are PENDING BUILD.
+    // 8 (cut-over, rollback): wave 1 ran on 2026-11-08 (see n14-cutover).
     { id: 'n14-tracker', piece: 14, say: S('Okta is the sign-in service the clinic used before the hospital bought it. The clinic has three apps in Okta. A script reads Okta and Entra and builds this tracker. Nobody types the status by hand.'),
-      do: [{ do: 'web.open', url: (x) => `file://${x.v2.okta}/lab/okta-migration/status.html`, settle: 3000 }] },
+      // 2026-11-16: the tracker of main (the tour's read-only checkout), not of
+      // the older okta branch: main has the wave-1 cut-over of 2026-11-08.
+      do: [{ do: 'web.open', url: (x) => `file://${x.tourLab}/lab/okta-migration/status.html`, settle: 3000 }] },
     { id: 'n14-apps', piece: 14, say: S('Each app uses a different sign-in method. Lab Results uses OpenID Connect. Billing uses SAML. Scheduling is only a bookmark.'),
       do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: okta('lab/terraform/okta/clinic-apps.tf'), line: 117, endLine: 125, highlight: true }] },
     { id: 'n14-policy', piece: 14, say: S("This is Okta's authentication policy, its rule for how a person proves who they are. Clinic staff need two factors, and they sign in again after eight hours, one shift. Anyone else is denied."),
@@ -1030,10 +1032,13 @@ export function stepsV2(c) {
       do: [{ do: 'code.file', file: okta('lab/okta-migration/results/2026-11-07T005908Z-clinic-lab-results-okta.json'), line: 1, endLine: 14, highlight: true }] },
     { id: 'n14-plan', piece: 14, say: S('The Entra side is code. One app, one group, one Conditional Access rule. The plan adds five things and changes nothing else.'),
       do: [{ do: 'gh.planComment', pr: 219 }, { do: 'web.highlight', target: { re: '5 to add, 0 to change, 0 to destroy|Plan: 5 to add', nth: 0 }, tag: '5 to add, 0 to change' }] },
-    // Rows 7 and 8: no cut-over has run (no results/*-entra.json): said as
-    // built, not run.
-    { id: 'n14-cutover', piece: 14, say: S('The cut-over is built: one command switches the app to Entra, and one command rolls it back. It has not run yet. It runs after the Entra side is applied.'),
-      do: [M('tile:OKTAMIG')] },
+    // Rows 7 and 8: the wave-1 cut-over ran on 2026-11-08 (capture log E184,
+    // PR #283; results/*-entra.json on main). The line said "has not run yet"
+    // until 2026-11-16. The tracker row of main is the proof on screen.
+    { id: 'n14-cutover', piece: 14, say: S('The first app is cut over. A script switched Lab Results to Entra, and the test sign-in through Entra passed. The rollback was run and timed. The other two apps are next.'),
+      do: [{ do: 'code.open', ws: c.tourWs }, { do: 'code.closeAll' },
+        { do: 'code.file', file: `${c.tourLab}/lab/okta-migration/tracker.md`, line: lineOf(`${c.tourLab}/lab/okta-migration/tracker.md`, /^\| Clinic Lab Results/), highlight: true },
+        M('tile:OKTAMIG')] },
 
     // ================================================================= N15
     // 2026-11-07 (readiness/cloud-least-priv.md): Session Manager RAN, then

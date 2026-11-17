@@ -6,7 +6,7 @@ Migrations · [Contoso Health Identity Lab](../../README.md)
 
 ![Move the clinic from Okta](../loops/23-move-the-clinic-from-okta.webp)
 
-[Full clip, 1:21](../videos/N14-okta.mp4)
+[Full clip, 1:26](../videos/N14-okta.mp4)
 
 ## Where it lives
 
