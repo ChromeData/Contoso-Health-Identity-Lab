@@ -20,12 +20,12 @@
   "steps": 11
  },
  "N04b-the-service-desk": {
-  "date": "2026-11-15",
-  "length": "2:28",
+  "date": "2026-11-17",
+  "length": "2:29",
   "steps": 14
  },
  "N05-the-master-key": {
-  "date": "2026-11-15",
+  "date": "2026-11-17",
   "length": "1:16",
   "steps": 7
  },
@@ -35,13 +35,13 @@
   "steps": 6
  },
  "N07-the-second-camera": {
-  "date": "2026-11-15",
+  "date": "2026-11-17",
   "length": "0:42",
   "steps": 5
  },
  "N08-leaving": {
-  "date": "2026-11-15",
-  "length": "1:05",
+  "date": "2026-11-17",
+  "length": "1:06",
   "steps": 8
  },
  "N09-the-logbook": {
@@ -55,8 +55,8 @@
   "steps": 9
  },
  "N11-admin-passwords-and-sessions": {
-  "date": "2026-11-15",
-  "length": "2:18",
+  "date": "2026-11-17",
+  "length": "2:16",
   "steps": 10
  },
  "N12-hardening-ad": {
@@ -90,7 +90,7 @@
   "steps": 5
  },
  "N18-conditional-access": {
-  "date": "2026-11-15",
+  "date": "2026-11-17",
   "length": "0:58",
   "steps": 7
  },
@@ -105,8 +105,8 @@
   "steps": 5
  },
  "N21-service-accounts": {
-  "date": "2026-11-15",
-  "length": "0:50",
+  "date": "2026-11-17",
+  "length": "0:52",
   "steps": 6
  },
  "N22-contain-an-account": {

@@ -2,7 +2,7 @@
 
 Sign-in security · [Contoso Health Identity Lab](../../README.md)
 
-**Two emergency admin accounts are out of all 11 policies. A drill examines them, and a Sentinel rule reports each sign-in.**
+**Two emergency admin accounts are out of all 12 policies. A drill examines them, and a Sentinel rule reports each sign-in.**
 
 ![Break-glass accounts](../loops/08-break-glass-accounts.webp)
 

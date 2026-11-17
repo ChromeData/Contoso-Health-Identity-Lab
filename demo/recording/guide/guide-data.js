@@ -122,7 +122,7 @@ window.GUIDE = {
   {
    "n": 4,
    "title": "The people",
-   "goal": "13 staff, 3 admins",
+   "goal": "Staff from HR, 3 IT admins",
    "tiles": [
     {
      "num": "4.1",
@@ -475,8 +475,8 @@ window.GUIDE = {
      "id": "HA",
      "num": "11.6",
      "name": "Intune EPM",
-     "what": "Intune Endpoint Privilege Management: a user runs one approved app as admin, for 24 hours, without being an admin.",
-     "status": "BUILT",
+     "what": "Intune Endpoint Privilege Management: a standard user runs one approved app as admin, with no admin account. A support-approved elevation ran on the managed PC.",
+     "status": "RAN · tenant",
      "standin": null
     },
     {

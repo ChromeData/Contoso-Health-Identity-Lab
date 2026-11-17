@@ -2,7 +2,7 @@
 
 Sign-in security · [Contoso Health Identity Lab](../../README.md)
 
-**Eleven sign-in policies are code. Each policy starts in report-only mode, and nine are enforced.**
+**Twelve sign-in policies are code. Ten are enforced, and two stay in report-only mode until each admin has a hardware key.**
 
 ![Conditional Access and MFA](../loops/07-conditional-access-and-mfa.webp)
 

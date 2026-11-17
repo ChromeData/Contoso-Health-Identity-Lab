@@ -6,7 +6,7 @@ Identity lifecycle · [Contoso Health Identity Lab](../../README.md)
 
 ![The employee leaves](../loops/06-the-employee-leaves.webp)
 
-[Full clip, 1:05](../videos/N08-leaving.mp4)
+[Full clip, 1:06](../videos/N08-leaving.mp4)
 
 ## Where it lives
 

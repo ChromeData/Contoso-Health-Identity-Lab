@@ -2,11 +2,11 @@
 
 Governance and audit · [Contoso Health Identity Lab](../../README.md)
 
-**An inventory lists 19 non-human identities and gives 27 findings. Eight identities have no owner.**
+**The first inventory found 19 non-human identities and 27 findings. Eight had no owner then. Each one has an owner now.**
 
 ![Service accounts and robots](../loops/14-service-accounts-and-robots.webp)
 
-[Full clip, 0:50](../videos/N21-service-accounts.mp4)
+[Full clip, 0:52](../videos/N21-service-accounts.mp4)
 
 ## Where it lives
 
