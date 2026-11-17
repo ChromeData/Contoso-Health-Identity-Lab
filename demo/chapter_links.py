@@ -166,7 +166,8 @@ LINKS = {
                      ("ADR 0021: drift detection", ADR + "0021-configuration-drift-detection.md")],
     },
     "N17-close-vscode-github": {
-        "code": [("The Terraform", TF + "README.md"), ("The workflows", ".github/workflows"), ("How the pipeline works", "lab/pipelines/README.md")],
+        "code": [("The Terraform", TF + "README.md"), ("Small examples", TF + "examples/README.md"), ("The workflows", ".github/workflows"),
+                 ("How the pipeline works", "lab/pipelines/README.md")],
         "test": [("The Terraform tests", TF + "docs/tests.md")],
         "evidence": [("How the evidence folder works", EV + "README.md")],
         "decision": [("ADR 0004: the pipeline signs in with no secret", ADR + "0004-pipeline-workload-identity-federation.md")],

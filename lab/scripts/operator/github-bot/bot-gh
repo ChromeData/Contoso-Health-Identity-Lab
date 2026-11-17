@@ -70,16 +70,35 @@ api() {
 
 mint_token() {
   local pem now header payload unsigned sig jwt inst
-  pem="$(security find-generic-password -s "$BOT_KEYCHAIN_SERVICE" -w 2>/dev/null | base64 -d 2>/dev/null)" \
-    || die "Keychain item $BOT_KEYCHAIN_SERVICE not readable - run new-bot-app.sh"
+  # The key store: the login Keychain on a Mac. On a Windows PC (Git Bash has
+  # no `security`), Windows Credential Manager through the lab's wincred.py:
+  # item contoso-lab:$BOT_KEYCHAIN_SERVICE:<account>, base64 PEM, the same as
+  # on the Mac. Each computer has its own App key (GitHub lets an App have
+  # more than one), so no key travels between computers.
+  if command -v security >/dev/null 2>&1; then
+    pem="$(security find-generic-password -s "$BOT_KEYCHAIN_SERVICE" -w 2>/dev/null | base64 -d 2>/dev/null)" \
+      || die "Keychain item $BOT_KEYCHAIN_SERVICE not readable - run new-bot-app.sh"
+  else
+    pem="$(python3 -I "$(dirname "$0")/../../demo/signin/wincred.py" read "$BOT_KEYCHAIN_SERVICE" 2>/dev/null | base64 -d 2>/dev/null)" \
+      || die "Credential Manager item contoso-lab:$BOT_KEYCHAIN_SERVICE not readable - store this computer's App key first"
+  fi
   [ -n "$pem" ] || die "Keychain item $BOT_KEYCHAIN_SERVICE is empty"
   now="$(date +%s)"
   header="$(printf '{"alg":"RS256","typ":"JWT"}' | b64url)"
   # iat 60 s in the past for clock drift; exp under GitHub's 10-minute cap.
   payload="$(printf '{"iat":%s,"exp":%s,"iss":"%s"}' "$((now - 60))" "$((now + 540))" "$BOT_APP_ID" | b64url)"
   unsigned="$header.$payload"
-  sig="$(printf '%s' "$unsigned" | openssl dgst -sha256 -binary -sign <(printf '%s\n' "$pem") | b64url)" \
-    || die "could not sign the App JWT"
+  if command -v security >/dev/null 2>&1; then
+    sig="$(printf '%s' "$unsigned" | openssl dgst -sha256 -binary -sign <(printf '%s\n' "$pem") | b64url)" \
+      || die "could not sign the App JWT"
+  else
+    # Windows (Git Bash): the native openssl.exe cannot open the /proc/<pid>/fd
+    # path of a process substitution. Node signs instead; the key goes to that
+    # one child in its environment (never argv, never a file).
+    sig="$(printf '%s' "$unsigned" | BOT_PEM="$pem" node -e 'const c=require("crypto");let d="";process.stdin.on("data",(x)=>{d+=x;}).on("end",()=>{process.stdout.write(c.sign("RSA-SHA256",Buffer.from(d),process.env.BOT_PEM).toString("base64url"));});')" \
+      || die "could not sign the App JWT"
+    [ -n "$sig" ] || die "could not sign the App JWT"
+  fi
   unset pem
   jwt="$unsigned.$sig"
   inst="$(api GET "/repos/$BOT_REPO/installation" "$jwt" | python3 -I -c 'import json,sys; print(json.load(sys.stdin)["id"])')" \

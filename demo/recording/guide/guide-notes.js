@@ -38,7 +38,7 @@ window.GUIDE_NOTES = {
     'AWS trusts the Entra sign-in through IAM Identity Center. Entra makes each AWS user.',
     'An admin gets a server shell through Session Manager after a PIM activation. No SSH key, no open port.',
     'Okta is the sign-in of a clinic that the hospital bought.',
-    'The move of the clinic apps to Entra is built. The cut-over has not run.',
+    'The first clinic app now trusts Entra (wave 1 of the move). The other two apps are next.',
   ],
   'setup:1.6': [
     'The lab is code: Terraform and scripts. I edit it in VS Code.',
@@ -260,8 +260,9 @@ window.GUIDE_NOTES = {
   ],
   'tile:OKTAMIG': [
     'The clinic has three apps in Okta. I move them to Entra one rule at a time.',
-    'The inventory and the first sign-in ran. That sign-in took 24 seconds.',
-    'The cut-over and the rollback are built. They have not run.',
+    'A script reads Okta and Entra and makes the tracker. Nobody types the status.',
+    'The first app, Clinic Lab Results, is cut over to Entra. The cut-over was timed, and a rollback is ready.',
+    'The other two apps are inventoried. They are in wave 2.',
   ],
   'tile:ADFS': [
     'AD FS is the older federation server. Here it runs on DC01 for this test only.',

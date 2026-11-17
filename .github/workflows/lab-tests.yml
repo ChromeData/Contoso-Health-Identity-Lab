@@ -98,6 +98,7 @@ jobs:
           fail=0
           dirs="lab/terraform/envs/dev lab/terraform/envs/bootstrap lab/terraform/envs/operator lab/terraform/aws lab/terraform/okta lab/terraform/k8s/platform lab/terraform/k8s/identity lab/terraform/k8s/keyvault-trust"
           for m in lab/terraform/modules/*/; do dirs="$dirs ${m%/}"; done
+          for e in lab/terraform/examples/*/; do dirs="$dirs ${e%/}"; done   # each example: validate + its mocked test
           for d in $dirs; do
             echo "::group::$d"
             lock=()

@@ -56,6 +56,8 @@ locals {
 
   # The five secret names the workflows read (.github/scripts/pipeline-config.sh
   # keeps the same list). Key Vault names allow letters, digits and dashes.
+  # A reference list: nothing reads it, so tflint is told to accept it.
+  # tflint-ignore: terraform_unused_declarations
   pipeline_config_secret_names = [
     "tf-operator-ip-ranges",
     "tf-alert-email",

@@ -10,6 +10,8 @@ lab/terraform/
 ├── docs/                             ← the pages of the README (this page is one of them)
 ├── .terraform-docs.yml               ← settings for the lists in each module README
 ├── tools/module-docs.sh              ← writes those lists (terraform-docs); --check tells you if a list is old
+├── .tflint.hcl                       ← tflint settings (the commit hook uses them)
+├── examples/                         ← three small examples of a module, each with a mocked test
 ├── aws/                              ← HUMAN-applied, separate cloud: IAM Identity Center permission set + assignment (after SCIM)
 │   ├── .terraform.lock.hcl           ← provider hashes (HashiCorp Terraform 1.16.5, 3 platforms) - committed
 │   ├── versions.tf / providers.tf / variables.tf / main.tf / outputs.tf

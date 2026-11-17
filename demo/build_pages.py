@@ -5,6 +5,7 @@
 A chapter shows its loop only when demo/loops/<loop>.webp exists, and its full clip only when
 demo/videos/<clip>.mp4 exists. Run demo/make_loops.py first, then this.
 """
+import glob
 import os
 
 from chapter_links import LINKS
@@ -17,6 +18,11 @@ TRIAL_END = "2026-11-26"
 
 def has(rel):
     return os.path.exists(os.path.join(ROOT, rel))
+
+
+def count(pattern):
+    """How many files match a glob pattern from the repo root (the numbers on the front page come from the files)."""
+    return len(glob.glob(os.path.join(ROOT, pattern), recursive=True))
 
 
 def readme():
@@ -35,11 +41,20 @@ def readme():
     ]
     for c in CHAPTERS:
         o.append(f"| {c['group']} | [{c['n']}. {c['title']}](demo/chapters/{c['loop']}.md) | {c['summary']} |")
-    o += ["", "Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · "
+    o += ["", f"Design decisions and risks: [{count('lab/docs/adr/0*.md')} decision records](lab/docs/adr/README.md) · "
           "[threat model](lab/docs/threat-model.md) · [risk register](lab/docs/risk-register.md) · "
           "[field notes](lab/docs/field-notes.md)",
+          "", "## Browse the code", "",
+          "| Where | What you find |", "|---|---|",
+          f"| [Terraform modules](lab/terraform/README.md#modules) | {count('lab/terraform/modules/*/README.md')} modules. Each has a README with a usage example and lists of its inputs and outputs. |",
+          f"| [Terraform examples](lab/terraform/examples/README.md) | {count('lab/terraform/examples/*/main.tf')} small examples. Each one runs with no sign-in. |",
+          f"| [Tests](lab/terraform/docs/tests.md) | {count('lab/terraform/**/*.tftest.hcl')} Terraform test files with mocked providers, and {count('lab/scripts/powershell/tests/*.Tests.ps1')} PowerShell test files. |",
+          "| [Pipeline](lab/pipelines/README.md) | A plan on each pull request, a human approval, then an apply with no stored secret. |",
+          f"| [Detections](lab/kql/README.md) | {count('lab/kql/*.kql')} alarm rules, one file each. |",
+          f"| [Decisions](lab/docs/adr/README.md) | {count('lab/docs/adr/0*.md')} decision records. |",
+          "| [All folders](lab/README.md) | One line for each folder of the lab. |",
+          "| [Changelog](CHANGELOG.md) | What changed, by version. |",
           "", "---", "",
-          "What is in each folder: [`lab/README.md`](lab/README.md).",
           "Results, limits, and evidence: [`lab/docs/platform-details.md`](lab/docs/platform-details.md).",
           "How the clips are made: [`demo/README.md`](demo/README.md).", ""]
     with open(os.path.join(ROOT, "README.md"), "w", encoding="utf-8", newline="\n") as f:
