@@ -9,7 +9,8 @@ and a link to the full clip.
 | [`RECORDING-PLAN.md`](RECORDING-PLAN.md) | The status of each clip and the sequence of work. |
 | [`make_loops.py`](make_loops.py) | Builds the loops in `loops/` from the clips in `videos/`. |
 | [`build_pages.py`](build_pages.py) | Writes the README and the recording plan from the chapter list. |
-| [`intro-script.md`](intro-script.md) | The intro that Michael reads on camera. The recording comes later. |
+| [`shot-list.md`](shot-list.md) | What Michael says on camera: the main intro, one short take for each part, and the close. The recording comes later. |
+| [`intro-script.md`](intro-script.md) | The long version of the intro, one line for each stop of the lab guide. |
 | [`recording/`](recording/) | The tool that drives the lab and records the clips. |
 
 After a new recording:
