@@ -27,7 +27,7 @@ window.GUIDE_NOTES = {
     'Azure runs the server DC01, the evidence store and the log store.',
     'Key Vault holds the secrets.',
     'Bastion records an admin session. I make it for a capture, then delete it to save cost.',
-    'Intune admin rights for the PC are built as a script. They are not set up yet.',
+    'Intune lets a standard user run one approved app as admin. That ran on the managed PC.',
   ],
   'setup:1.4': [
     'Sentinel runs my alarm rules and opens incidents. Defender shows them.',
@@ -139,7 +139,7 @@ window.GUIDE_NOTES = {
   'setup:5': [
     'A SIEM collects logs and runs alarm rules on them.',
     'Sentinel is the Microsoft SIEM. Splunk reads the same records.',
-    'I wrote 24 alarm rules. 17 run in Sentinel today.',
+    '29 alarm rules are in code. 15 run in Sentinel today, with the Fusion rule from Microsoft.',
     'Misuse is found with either tool.',
   ],
   'setup:5.1': [
@@ -208,7 +208,8 @@ window.GUIDE_NOTES = {
   'tile:LCW': [
     'These are lifecycle workflows: one for the first day and one for the last day.',
     'The first-day workflow runs on the hire date. The manager gets a one-time pass for the new employee.',
-    'The last-day workflow runs on demand. It disables the account, ends the sessions and removes the access.',
+    'One last-day workflow runs on the leave date. A second one runs on demand, to stop a person at once.',
+    'A Logic App removes the access packages that came from the job.',
   ],
   'tile:DYNGRP': [
     'These groups fill themselves.',
@@ -226,7 +227,7 @@ window.GUIDE_NOTES = {
   ],
   'tile:SOD': [
     'Nine rules name the access that one person must not hold together.',
-    'One rule is enforced in the tenant: nursing with pharmacy dispensing.',
+    'In the tenant, the pharmacy package cannot be held with the nurse package or an ICU package.',
     'The other rules cover packages that this lab does not build.',
   ],
   'tile:SNOWREQ': [
@@ -234,7 +235,7 @@ window.GUIDE_NOTES = {
     'Her manager approves. ServiceNow then asks Entra, and Entra gives the access.',
     'Three live runs took from 2:27 to 3:33, from open to closed.',
     'Entra refuses a forbidden pair. That ticket goes to the IAM queue.',
-    'The proof used a test app. Live grants need my approval of pull request 254.',
+    'The first proof used a test app. On 8 November, a live grant ran with the real app.',
   ],
   // ------------------------------------------------------------------ 9 Apps
   'lab:9': [
@@ -290,6 +291,7 @@ window.GUIDE_NOTES = {
     'These are the core sign-in rules.',
     'Each person proves identity with more than a password. Old sign-in methods are blocked.',
     'Each new rule starts in report-only mode. It logs, and it blocks nothing.',
+    'The tenant has 12 policies. 10 are enforced, and 2 are in report-only mode.',
   ],
   'tile:INTUNE': [
     'Admin portals open only from a managed laptop in good condition.',
@@ -310,7 +312,7 @@ window.GUIDE_NOTES = {
     'A rule for shared PCs is in the code but off. This lab has no shared PCs.',
   ],
   'tile:BG': [
-    'Two emergency Global Admin accounts are outside each rule.',
+    'Two emergency Global Admin accounts are outside all 12 sign-in policies.',
     'They let me correct a bad rule.',
     'Each has its own passkey. Each sign-in raises an alarm, and a drill proved it.',
   ],
@@ -346,9 +348,9 @@ window.GUIDE_NOTES = {
     'I make Bastion for a capture, then delete it. It costs about 45 cents an hour.',
   ],
   'tile:HA': [
-    'Intune Endpoint Privilege Management lets a user run one approved app as admin for 24 hours.',
-    'The user is not an admin.',
-    'Status: built as a script. It is not set up.',
+    'Intune Endpoint Privilege Management lets a standard user run one approved app as admin.',
+    'On 10 November, a support-approved elevation ran on the managed PC. An admin approved it, after she activated her Intune role in PIM.',
+    'One limit: the elevation rule did not arrive on the PC. The cause is not found.',
   ],
   'tile:DYN': [
     'Terraform read a password from Key Vault in two ways.',
@@ -393,7 +395,7 @@ window.GUIDE_NOTES = {
   ],
   'tile:SPLUNK': [
     'Splunk is a second alarm system with the same detection rules.',
-    'Each rule fired on a replay of test attacks. The failed sign-in alarm fired on live events.',
+    'On a replay of test attacks, each of the 22 rules of that day fired. The failed sign-in alarm fired on live events.',
     'The rules do not depend on one product.',
   ],
   // ---------------------------------------- 13 Leaver + non-human identities
@@ -417,7 +419,7 @@ window.GUIDE_NOTES = {
     'The IAM Operations queue in ServiceNow holds the work that automation cannot complete.',
     'Examples: a refused forbidden pair, and a lost-phone ticket for the help desk.',
     'A leaver task removes the extra access with one button.',
-    'Live grants and removals need my approval of pull request 254.',
+    'A live grant with the real app ran on 8 November.',
   ],
   // ---------------------------------------------------------------- 14 Proof
   'lab:14': [

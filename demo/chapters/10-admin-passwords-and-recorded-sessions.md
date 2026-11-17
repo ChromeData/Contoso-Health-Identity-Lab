@@ -6,7 +6,7 @@ Privileged access · [Contoso Health Identity Lab](../../README.md)
 
 ![Admin passwords and recorded sessions](../loops/10-admin-passwords-and-recorded-sessions.webp)
 
-[Full clip, 2:18](../videos/N11-admin-passwords-and-sessions.mp4)
+[Full clip, 2:16](../videos/N11-admin-passwords-and-sessions.mp4)
 
 ## Where it lives
 

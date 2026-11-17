@@ -783,7 +783,7 @@ export function stepsV2(c) {
       do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: SNOWRB, line: lineOf(SNOWRB, /"work_notes"/), endLine: lineOf(SNOWRB, /Closed automatically/), highlight: true }] },
     { id: 'n04b-why', piece: 4.5, say: S("Entra's record names the ticket and the manager. The access ends by itself on the end date. ServiceNow's app holds one role on one catalog: it may add or remove people on any package in the Clinical catalog. If ServiceNow were broken into, that catalog would be too. It signs in with a certificate, not a password."),
       do: [{ do: 'code.file', file: SNOWRB, line: lineOf(SNOWRB, /"justification"/), endLine: lineOf(SNOWRB, /"requestor"/), highlight: true }] },
-    { id: 'n04b-test', piece: 4.5, say: S('This run used a test app, deleted afterwards. The lasting app is built as code, and goes live when I approve its change.'),
+    { id: 'n04b-test', piece: 4.5, say: S('This run used a test app, deleted afterwards. The lasting app is live now. A later run with it passed, on November eighth.'),   // capture log E182
       do: [{ do: 'web.open', url: PKGS, settle: 6000 }, { do: 'web.highlight', target: [{ text: 'ICU - Float Access', row: true }, { re: '^ICU - Float', row: true }], tag: 'The package she asked for' }] },
     { id: 'n04b-queue', piece: 4.5, say: S('Ava is the IAM engineer. This is her queue: whatever automation cannot finish. Here a nurse in ICU asked for pharmacy dispensing. Her manager said yes. Entra said no. ICU and pharmacy dispensing are a forbidden pair, so one person cannot hold both. Nothing was granted.'),
       do: [{ do: 'web.show', url: SNOWEV('20261107T185146Z/20-iam-queue.png'), settle: 400 }] },
@@ -866,7 +866,7 @@ export function stepsV2(c) {
         ? "This is the same rule, run on the tenant's own log. It finds a real activation from the last hour: the read-only account that records this video."
         : "This is the same rule, run on the live log. Twenty-two rules ran here at recording, and each one fired on test events.") },
     { id: 'n07-both', piece: 7, say: S('Most hospitals run one SIEM. Building both shows the rules move with the hospital, whichever tool it owns.'), do: [] },
-    { id: 'n07-table', piece: 7, say: S('This table lists all twenty-four rules and what each one catches. It is in the lab guide.'),
+    { id: 'n07-table', piece: 7, say: S('This table lists twenty-four rules and what each one catches. Five more rules came later.'),   // lab/kql has 29 rule files (24 until 2026-11-07)
       do: [{ do: 'code.open', ws: c.v2?.ws }, { do: 'code.closeAll' }, { do: 'code.file', file: RULES_MD, line: lineOf(RULES_MD, /^\| 1 \|/) - 2, endLine: lineOf(RULES_MD, /^\| 24 \|/), highlight: true }] },
 
     // ================================================================= N08
@@ -890,7 +890,7 @@ export function stepsV2(c) {
       do: [{ do: 'code.file', file: OHRMEV_F('watch-leave.log'), line: lineOf(OHRMEV_F('watch-leave.log'), /enabled=False/), endLine: lineOf(OHRMEV_F('watch-leave.log'), /enabled=False/) + 1, highlight: true }] },
     { id: 'n08-apps', piece: 8, say: S("ServiceNow marked the worker inactive, and AWS showed the account disabled, each on its own sync. Nobody filed a ticket."),
       do: [{ do: 'code.file', file: OHRMEV_F('watch-leave.log'), line: lineOf(OHRMEV_F('watch-leave.log'), /ServiceNow .* disable success/), endLine: lineOf(OHRMEV_F('watch-leave.log'), /PROVLOG AWS .* disable success/), highlight: true }] },
-    { id: 'n08-two', piece: 8, say: S("Two things are separate. The HR change switches the account off. IT's leaver workflow then removes his access packages and ends his open sessions. That workflow is live, from pull request 257, but its package removal has not passed its test yet."), do: [M('tile:LEAVER')] },
+    { id: 'n08-two', piece: 8, say: S("Two things are separate. The HR change switches the account off. IT's leaver workflow then removes his access packages and ends his open sessions. That workflow is live, from pull request 257. A Logic App removes the packages that came from his job, and that test passed on November tenth."), do: [M('tile:LEAVER')] },
 
     // ================================================================= N09
     { id: 'n09-run', piece: 9, write: true, cloud: true, say: S('Every step leaves a record. One click runs the evidence workflow. It reads Entra with a read-only identity.'),
@@ -1095,7 +1095,7 @@ export function stepsV2(c) {
       do: [{ do: 'code.file', file: TFVARS, line: lineOf(TFVARS, /^ca_policy_states = \{/), endLine: lineOf(TFVARS, /^\s*CA021\s*=/), highlight: true }] },
     { id: 'n18-graduate', piece: 18, say: S('One pull request enforces one policy. This one enforced CA001, the second check for all users. Its report-only data showed no sign-in that it would block.'),
       do: [{ do: 'web.open', url: `${GH}/pull/79`, settle: 5000 }, { do: 'web.highlight', target: [{ re: 'CA001: report-only to enabled', nth: 0 }, { re: 'report-only to enabled', nth: 0 }], tag: 'One policy, one pull request' }] },
-    { id: 'n18-portal', piece: 18, say: S('In Entra, the same policies show with their state. Nine are on.'),
+    { id: 'n18-portal', piece: 18, say: S('In Entra, the same policies show with their state. Ten are on.'),   // live read 2026-11-16: 12 policies, 10 enabled (CA061, the clinic app, came on 2026-11-08), 2 report-only
       do: [{ do: 'web.open', url: CAPOL, settle: 8000 }, { do: 'web.highlight', target: [{ re: 'CA001 - Require MFA for all users', row: true }, { re: '^CA001', nth: 0 }], tag: 'On: enforced' }] },
     { id: 'n18-reportonly', piece: 18, say: S('Two stay in report-only mode: CA002 and CA021. Both need a hardware key for each admin first, and the lab has none.'),
       do: [{ do: 'web.highlight', target: [{ re: '^CA002', row: true }, { re: '^CA002', nth: 0 }], tag: 'Report-only: logs, blocks nothing' }] },
@@ -1140,7 +1140,7 @@ export function stepsV2(c) {
       do: [{ do: 'code.file', file: NHISUM, line: lineOf(NHISUM, /"findingsBySeverity"/), endLine: lineOf(NHISUM, /"findingsBySeverity"/) + 4, highlight: true }] },
     { id: 'n21-owasp', piece: 21, say: S('Each finding has an ID from the OWASP Non-Human Identities Top 10, a public list of the usual faults.'),
       do: [{ do: 'code.highlight', file: NHISUM, line: lineOf(NHISUM, /"findingsByOwasp"/), endLine: lineOf(NHISUM, /"findingsByOwasp"/) + 10 }] },
-    { id: 'n21-owner', piece: 21, say: S('Eight identities have no named owner. That is the list in work: each one gets an owner.'),
+    { id: 'n21-owner', piece: 21, say: S('In that first run, eight identities had no named owner. A second run on the same day found none. Each one has an owner now.'),   // capture log E70a (the second run, after the owner work)
       do: [M('tile:NHI')] },
     { id: 'n21-policy', piece: 21, say: S('A tenant policy prevents the fault on new apps. A new app cannot have a client secret, and a new certificate lives 180 days at most.'),
       do: [{ do: 'code.file', file: APPPOLICY, line: lineOf(APPPOLICY, /^\.SYNOPSIS/), endLine: lineOf(APPPOLICY, /^\.SYNOPSIS/) + 6, highlight: true }] },

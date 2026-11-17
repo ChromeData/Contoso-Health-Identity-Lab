@@ -20,14 +20,14 @@ to the code, the test, the evidence and the decision behind it.
 | Identity lifecycle | [4. Request more access](demo/chapters/04-request-more-access.md) | A nurse asks, her manager approves, Entra gives the access. |
 | Identity lifecycle | [5. The employee changes jobs](demo/chapters/05-the-employee-changes-jobs.md) | HR moves a nurse to a new department. The access follows. |
 | Identity lifecycle | [6. The employee leaves](demo/chapters/06-the-employee-leaves.md) | Four systems disable the account with no ticket. |
-| Sign-in security | [7. Conditional Access and MFA](demo/chapters/07-conditional-access-and-mfa.md) | Eleven sign-in policies as code. Nine are enforced. |
+| Sign-in security | [7. Conditional Access and MFA](demo/chapters/07-conditional-access-and-mfa.md) | Twelve sign-in policies as code. Ten are enforced. |
 | Sign-in security | [8. Break-glass accounts](demo/chapters/08-break-glass-accounts.md) | Two emergency accounts, out of all policies, with an alarm. |
 | Privileged access | [9. Temporary admin rights](demo/chapters/09-temporary-admin-rights.md) | An admin activates a role for a limited time. |
 | Privileged access | [10. Admin passwords and recorded sessions](demo/chapters/10-admin-passwords-and-recorded-sessions.md) | Secrets in a vault, sessions on record. |
 | Privileged access | [11. Harden Active Directory](demo/chapters/11-harden-active-directory.md) | Admin tiers on the domain controller. |
 | Privileged access | [12. Admin access in AWS and Azure](demo/chapters/12-admin-access-in-aws-and-azure.md) | Temporary server access and a narrow role. |
 | Governance and audit | [13. Access governance](demo/chapters/13-access-governance.md) | Reviews, expiry, and blocked combinations. |
-| Governance and audit | [14. Service accounts and robots](demo/chapters/14-service-accounts-and-robots.md) | An inventory of 19 non-human identities, with findings. |
+| Governance and audit | [14. Service accounts and robots](demo/chapters/14-service-accounts-and-robots.md) | An inventory of the non-human identities, with findings. |
 | Governance and audit | [15. Audit evidence](demo/chapters/15-audit-evidence.md) | Seven records go to a write-once store. |
 | Detect and respond | [16. Detection in Sentinel](demo/chapters/16-detection-in-sentinel.md) | A rule in code opens an incident. |
 | Detect and respond | [17. Detection in Splunk](demo/chapters/17-detection-in-splunk.md) | The same rules run in a second SIEM. |
