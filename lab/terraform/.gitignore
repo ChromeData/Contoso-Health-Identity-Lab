@@ -32,3 +32,5 @@ crash.*.log
 # Child modules have no lock file (they inherit the root's), so a
 # local `init` / `test` inside a module must not leave one to be published.
 modules/*/.terraform.lock.hcl
+# The examples are not roots that CI applies: no lock file, the same as the modules.
+examples/*/.terraform.lock.hcl

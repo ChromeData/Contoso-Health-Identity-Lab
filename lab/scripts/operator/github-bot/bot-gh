@@ -70,8 +70,18 @@ api() {
 
 mint_token() {
   local pem now header payload unsigned sig jwt inst
-  pem="$(security find-generic-password -s "$BOT_KEYCHAIN_SERVICE" -w 2>/dev/null | base64 -d 2>/dev/null)" \
-    || die "Keychain item $BOT_KEYCHAIN_SERVICE not readable - run new-bot-app.sh"
+  # The key store: the login Keychain on a Mac. On a Windows PC (Git Bash has
+  # no `security`), Windows Credential Manager through the lab's wincred.py:
+  # item contoso-lab:$BOT_KEYCHAIN_SERVICE:<account>, base64 PEM, the same as
+  # on the Mac. Each computer has its own App key (GitHub lets an App have
+  # more than one), so no key travels between computers.
+  if command -v security >/dev/null 2>&1; then
+    pem="$(security find-generic-password -s "$BOT_KEYCHAIN_SERVICE" -w 2>/dev/null | base64 -d 2>/dev/null)" \
+      || die "Keychain item $BOT_KEYCHAIN_SERVICE not readable - run new-bot-app.sh"
+  else
+    pem="$(python3 -I "$(dirname "$0")/../../demo/signin/wincred.py" read "$BOT_KEYCHAIN_SERVICE" 2>/dev/null | base64 -d 2>/dev/null)" \
+      || die "Credential Manager item contoso-lab:$BOT_KEYCHAIN_SERVICE not readable - store this computer's App key first"
+  fi
   [ -n "$pem" ] || die "Keychain item $BOT_KEYCHAIN_SERVICE is empty"
   now="$(date +%s)"
   header="$(printf '{"alg":"RS256","typ":"JWT"}' | b64url)"

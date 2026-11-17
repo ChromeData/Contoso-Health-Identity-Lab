@@ -51,6 +51,11 @@ Each module has a README: its purpose, the real call from the lab, its tests, an
 [`tools/module-docs.sh`](tools/module-docs.sh) makes the lists with `terraform-docs`. `--check` tells you if a list is old.
 The real example of the modules in use is [`envs/dev/main.tf`](envs/dev/main.tf).
 
+Three small examples are in [`examples/`](examples/README.md). Each one has a mocked test, so it runs with no sign-in.
+
+Checks on each commit are in [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml): `terraform fmt`, `terraform validate`, `tflint` ([`.tflint.hcl`](.tflint.hcl)) and `terraform-docs`.
+To use them, do this one time: `pip install pre-commit`, then `pre-commit install`.
+
 | Module | What it makes |
 |---|---|
 | [`groups`](modules/groups/README.md) | The groups and the two break-glass accounts that Terraform owns. |

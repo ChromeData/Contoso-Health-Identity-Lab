@@ -337,7 +337,7 @@ window.GUIDE = {
      "id": "OKTAMIG",
      "num": "9.4",
      "name": "Okta apps to Entra",
-     "what": "The clinic's three Okta apps, moved to Entra rule by rule. The estate and the before sign-in ran (24 s); the cut-over and rollback are built, not run.",
+     "what": "The clinic's three Okta apps, moved to Entra one at a time. The first app, Clinic Lab Results, is cut over to Entra, with a timed rollback (wave 1). The other two are inventoried.",
      "status": "RAN · tenant",
      "standin": null
     },

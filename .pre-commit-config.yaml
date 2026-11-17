@@ -1,0 +1,39 @@
+# Checks on each commit that changes the Terraform in lab/terraform.
+# For a developer's computer. One time:  pip install pre-commit && pre-commit install
+# Necessary on the PATH: terraform, tflint, terraform-docs.
+#
+# CI runs fmt, validate, the tests and the module lists on each pull request
+# (lab-tests.yml), so a commit that did not run these hooks is found there.
+# tflint runs here only.
+#
+# Each repo is pinned to a full commit SHA, with the version in a comment
+# (the same rule as for the GitHub Actions, lab/pipelines/docs/4-sha-pinning.md).
+repos:
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: b9e409b0fee34ee0eee7e6f6a407061f15032926 # v1.109.5
+    hooks:
+      - id: terraform_fmt
+        files: ^lab/terraform/
+      - id: terraform_validate
+        files: ^lab/terraform/(modules|examples)/
+        args:
+          - --hook-config=--retry-once-with-cleanup=true
+          - --tf-init-args=-backend=false
+      - id: terraform_tflint
+        files: ^lab/terraform/
+        args:
+          - --args=--config=__GIT_WORKING_DIR__/lab/terraform/.tflint.hcl
+      - id: terraform_docs
+        files: ^lab/terraform/modules/
+        args:
+          - --hook-config=--path-to-file=README.md
+          - --hook-config=--add-to-existing-file=true
+          - --hook-config=--create-file-if-not-exist=false
+          - --args=--config=lab/terraform/.terraform-docs.yml
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=5000]

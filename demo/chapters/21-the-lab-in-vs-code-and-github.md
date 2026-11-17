@@ -12,7 +12,7 @@ Platform as code · [Contoso Health Identity Lab](../../README.md)
 
 | | |
 |---|---|
-| **Code** | [The Terraform](../../lab/terraform/README.md) · [The workflows](../../.github/workflows) · [How the pipeline works](../../lab/pipelines/README.md) |
+| **Code** | [The Terraform](../../lab/terraform/README.md) · [Small examples](../../lab/terraform/examples/README.md) · [The workflows](../../.github/workflows) · [How the pipeline works](../../lab/pipelines/README.md) |
 | **Test** | [The Terraform tests](../../lab/terraform/docs/tests.md) |
 | **Evidence** | [How the evidence folder works](../../lab/evidence/README.md) |
 | **Decision** | [ADR 0004: the pipeline signs in with no secret](../../lab/docs/adr/0004-pipeline-workload-identity-federation.md) |

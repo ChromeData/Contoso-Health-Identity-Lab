@@ -38,10 +38,22 @@ to the code, the test, the evidence and the decision behind it.
 | Migrations | [22. Move an app from AD FS](demo/chapters/22-move-an-app-from-ad-fs.md) | One app moves to Entra. |
 | Migrations | [23. Move the clinic from Okta](demo/chapters/23-move-the-clinic-from-okta.md) | Three Okta apps and their move to Entra. |
 
-Design decisions and risks: [36 decision records](lab/docs/adr/README.md) · [threat model](lab/docs/threat-model.md) · [risk register](lab/docs/risk-register.md) · [field notes](lab/docs/field-notes.md)
+Design decisions and risks: [37 decision records](lab/docs/adr/README.md) · [threat model](lab/docs/threat-model.md) · [risk register](lab/docs/risk-register.md) · [field notes](lab/docs/field-notes.md)
+
+## Browse the code
+
+| Where | What you find |
+|---|---|
+| [Terraform modules](lab/terraform/README.md#modules) | 14 modules. Each has a README with a usage example and lists of its inputs and outputs. |
+| [Terraform examples](lab/terraform/examples/README.md) | 3 small examples. Each one runs with no sign-in. |
+| [Tests](lab/terraform/docs/tests.md) | 50 Terraform test files with mocked providers, and 50 PowerShell test files. |
+| [Pipeline](lab/pipelines/README.md) | A plan on each pull request, a human approval, then an apply with no stored secret. |
+| [Detections](lab/kql/README.md) | 29 alarm rules, one file each. |
+| [Decisions](lab/docs/adr/README.md) | 37 decision records. |
+| [All folders](lab/README.md) | One line for each folder of the lab. |
+| [Changelog](CHANGELOG.md) | What changed, by version. |
 
 ---
 
-What is in each folder: [`lab/README.md`](lab/README.md).
 Results, limits, and evidence: [`lab/docs/platform-details.md`](lab/docs/platform-details.md).
 How the clips are made: [`demo/README.md`](demo/README.md).
